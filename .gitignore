@@ -1,0 +1,9 @@
+venv
+__pycache__
+.vscode
+.env
+.coverage
+.pytest_cache
+dump.rdb
+celerybeat-schedule
+celerybeat.pid
