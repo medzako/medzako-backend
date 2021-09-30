@@ -107,6 +107,6 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
         return f'{self.full_name}'
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name', 'id_no']
+    REQUIRED_FIELDS = ['full_name', 'phone_no']
 
     objects = UserManager()
