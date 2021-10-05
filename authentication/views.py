@@ -1,6 +1,7 @@
-from django.http import request
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 
 from rest_framework_simplejwt.views import TokenViewBase
 
@@ -18,3 +19,13 @@ class RegistrationView(generics.CreateAPIView):
 
 class TokenUserDataObtainPairView(TokenViewBase):
     serializer_class = serializers.ReturnUserInformationLoginSerializer
+
+
+class FetchUserView(generics.GenericAPIView):
+    """Fetch user data"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        serializer = serializers.RegistrationSerializer(instance=request.user)
+        return Response(serializer.data)
