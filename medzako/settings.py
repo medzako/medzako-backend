@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'cloudinary',
-    'medication'
+    'medication',
+    'order'
 
 ]
 

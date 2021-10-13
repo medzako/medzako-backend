@@ -1,4 +1,3 @@
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import generics
 
 from . import models, serializers
@@ -34,7 +33,7 @@ class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateDestroyAPIView):
 
     permission_classes = [IsAdminOrReadOnly]
     queryset = models.Pharmacy.objects.all()
-    serializer_class = serializers.PharmacySerializer
+    serializer_class = serializers.SinglePharmacySerializer
 
 
 class RetrieveUpdateDestroyMedicationView(generics.RetrieveUpdateDestroyAPIView):

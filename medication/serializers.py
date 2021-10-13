@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from . import models
+import medication
 
 class MedicationSerializer(serializers.ModelSerializer):
 
@@ -20,3 +21,13 @@ class PharmacySerializer(serializers.ModelSerializer):
         model = models.Pharmacy
         fields = '__all__'
 
+    
+class SinglePharmacySerializer(serializers.ModelSerializer):
+    medication = MedicationSerializer(many=True)
+
+    class Meta:
+        model = models.Pharmacy
+        fields = '__all__'
+        extra_kwargs = {
+            'meddication': {'read_only':True},
+        }

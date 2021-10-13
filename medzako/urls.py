@@ -37,6 +37,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/auth/", include("authentication.urls", namespace="auth")),
     path("api/medications/", include("medication.urls", namespace="medication")),
+    path("api/orders/", include("order.urls", namespace="order")),
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
