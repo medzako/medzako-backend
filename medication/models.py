@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from cloudinary.models import CloudinaryField
 from core.utils.constants import MEDICATION_TYPE
@@ -14,6 +15,24 @@ class Pharmacy(AbstractBaseModel):
     medication = models.ManyToManyField('medication.Medication', related_name='pharmacies')
     location_name = models.CharField(max_length=50, null=True)
     image = CloudinaryField('image')
+    rating = models.DecimalField(null=True, decimal_places=1, max_digits=1)
+    completed_orders = models.IntegerField(default=0)
+
+    @property
+    def get_rating(self):
+        ratings = self.ratings.all()
+        total_rating = 0
+
+        for rating in ratings:
+            total_rating += rating.rating
+
+        rating = total_rating/len(ratings)
+        
+        return Decimal(round(rating, 1))
+
+    def save(self, *args, **kwargs):
+        self.rating = self.get_rating
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -32,6 +51,7 @@ class Medication(AbstractBaseModel):
     type  = models.CharField(max_length=50, choices=MEDICATION_TYPE)
     image = CloudinaryField('image')
     scientific_name = models.CharField(max_length=50)
+    units_moved = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -60,5 +80,22 @@ class PharmacyStock(AbstractBaseModel):
         )
     stock = models.IntegerField(default=0)
     price = models.DecimalField(decimal_places=2, max_digits=9)
+
+
     def __str__(self):
         return f'{self.pharmacy.name}-{self.medication.name}'
+
+
+class Rating(AbstractBaseModel):
+    pharmacy = models.ForeignKey(
+        'medication.Pharmacy', 
+        related_name='ratings',
+        on_delete=models.CASCADE
+        )
+    customer = models.ForeignKey(
+        'authentication.User',
+        related_name='rating',
+        on_delete=models.CASCADE
+    )
+    rating = models.IntegerField()
+    

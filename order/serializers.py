@@ -37,10 +37,20 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
+
+    def save(self, **kwargs):
+        instance =  super().save(**kwargs)
+        if instance.is_completed:
+            instance.pharmacy.completed_orders += 1
+            instance.pharmacy.save()
+            for item in instance.items.all():
+                item.medication.units_moved += item.quantity
+                item.medication.save()
+        return instance
     
     class Meta:
         model = models.Order
-        fields = ['is_completed', 'is_paid']
+        fields = ['is_completed', 'is_payment_complete']
 
 
 class PaymentSerializer(serializers.ModelSerializer):

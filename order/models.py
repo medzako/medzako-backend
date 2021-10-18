@@ -51,4 +51,3 @@ class OrderItem(AbstractBaseModel):
 class Payment(AbstractBaseModel):
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     payment_type = models.CharField(choices=PAYMENTS, max_length=50)
-    

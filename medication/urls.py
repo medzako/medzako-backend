@@ -9,5 +9,6 @@ urlpatterns = [
     path("pharmacies/", views.CreatePharmacyView.as_view(), name="pharmacies"),
     path("<int:pk>/", views.RetrieveUpdateDestroyMedicationView.as_view(), name="update_medications"),
     path("pharmacies/<int:pk>/", views.RetrieveUpdateDestroyPharmacyView.as_view(), name="update_pharmacy"),
-    path("categories/<int:pk>/", views.RetrieveUpdateDestroyCategoryView.as_view(), name="update_category")
+    path("categories/<int:pk>/", views.RetrieveUpdateDestroyCategoryView.as_view(), name="update_category"),
+    path("pharmacies/rate/", views.RatePharmacyView.as_view(), name="rate_pharmacy"),
 ]
