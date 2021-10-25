@@ -15,7 +15,7 @@ class Pharmacy(AbstractBaseModel):
     medication = models.ManyToManyField('medication.Medication', related_name='pharmacies')
     location_name = models.CharField(max_length=50, null=True)
     image = CloudinaryField('image')
-    rating = models.DecimalField(null=True, decimal_places=1, max_digits=1)
+    rating = models.DecimalField(default=0, decimal_places=1, max_digits=1)
     completed_orders = models.IntegerField(default=0)
 
     @property
@@ -25,10 +25,10 @@ class Pharmacy(AbstractBaseModel):
 
         for rating in ratings:
             total_rating += rating.rating
-
-        rating = total_rating/len(ratings)
-        
-        return Decimal(round(rating, 1))
+        if ratings:
+            rating = total_rating/len(ratings)
+            return Decimal(round(rating, 1))
+        return 0
 
     def save(self, *args, **kwargs):
         self.rating = self.get_rating
