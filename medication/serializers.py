@@ -1,18 +1,32 @@
 from rest_framework import serializers
 from . import models
 
-
 class MedicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Medication
         fields = '__all__'
 
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Category
         fields = '__all__'
+
+
+class SingleMedicationSerializer(serializers.ModelSerializer):
+
+    category = CategorySerializer()
+
+    class Meta:
+        model = models.Medication
+        fields = '__all__'
+        extra_kwargs = {
+            'category': {
+                'write_only': True
+            }
+        }
 
 
 class PharmacySerializer(serializers.ModelSerializer):
@@ -23,14 +37,10 @@ class PharmacySerializer(serializers.ModelSerializer):
 
     
 class SinglePharmacySerializer(serializers.ModelSerializer):
-    medication = MedicationSerializer(many=True)
 
     class Meta:
         model = models.Pharmacy
         fields = '__all__'
-        extra_kwargs = {
-            'meddication': {'read_only':True},
-        }
 
 
 class RatesSerializer(serializers.ModelSerializer):
@@ -38,3 +48,16 @@ class RatesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Rating
         fields = '__all__'
+
+
+class StockSerializer(serializers.ModelSerializer):
+    medication = SingleMedicationSerializer()
+
+    class Meta:
+        model = models.PharmacyStock
+        fields = '__all__'
+        extra_kwargs = {
+            'medication': {
+                'write_only': True
+            }
+        }

@@ -11,6 +11,12 @@ class Order(AbstractBaseModel):
         related_name='orders',
         null=True
     )
+    location = models.ForeignKey(
+        'order.Location',
+        on_delete=models.SET_NULL,
+        related_name='orders',
+        null=True
+    ),
     is_completed = models.BooleanField(default=False)
     total_price = models.DecimalField(max_digits=9, decimal_places=2)
     payment = models.OneToOneField(
@@ -51,3 +57,16 @@ class OrderItem(AbstractBaseModel):
 class Payment(AbstractBaseModel):
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     payment_type = models.CharField(choices=PAYMENTS, max_length=50)
+
+
+class Location(models.Model):
+    customer = models.ForeignKey(
+        'authentication.User',
+        related_name='locations',
+        on_delete=models.CASCADE
+    )
+    lat = models.DecimalField(max_digits=9, decimal_places=6)
+    long = models.DecimalField(max_digits=9, decimal_places=6)
+    general_area = models.CharField(max_length=50)
+    apartment_name = models.CharField(max_length=50, null=True)
+    room_no = models.CharField(max_length=20, null=True)

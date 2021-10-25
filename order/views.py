@@ -16,4 +16,21 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = models.Order.objects.all()
     serializer_class = serializers.UpdateOrderSerializer
+
     
+class CreateListLocationsView(generics.ListCreateAPIView):
+    """Creates and List Locations"""
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.LocationSerializer
+
+    def get_queryset(self):
+        return self.request.user.locations.all()
+
+
+class RetrieveUpdateLocation(generics.RetrieveUpdateAPIView):
+    """Retrieve and Update Location"""
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.LocationSerializer
+
+    def get_queryset(self):
+        return self.request.user.locations.all()

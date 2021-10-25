@@ -1,5 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 from . import models, serializers
 from core.permissions import IsAdminOrReadOnly
 
@@ -56,6 +58,14 @@ class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Pharmacy.objects.all()
     serializer_class = serializers.SinglePharmacySerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        stock_serializer = serializers.StockSerializer(instance.available_stock, many=True)
+        data['stock'] = stock_serializer.data
+        return Response(data=data)
+
 
 class RetrieveUpdateDestroyMedicationView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update, and delete Medication"""
@@ -77,3 +87,4 @@ class RatePharmacyView(generics.CreateAPIView):
     """Rate Order"""
     permission_classes = [IsAuthenticated]
     queryset = models.Rating.objects.all()
+    serializer_class = serializers.RatesSerializer

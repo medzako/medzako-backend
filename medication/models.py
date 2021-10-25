@@ -12,7 +12,6 @@ class Pharmacy(AbstractBaseModel):
     location_lat = models.DecimalField(max_digits=9, decimal_places=6)
     location_long = models.DecimalField(max_digits=9, decimal_places=6)
     contact_no = models.CharField(unique=True, max_length=50, validators=[validate_phone_number])
-    medication = models.ManyToManyField('medication.Medication', related_name='pharmacies')
     location_name = models.CharField(max_length=50, null=True)
     image = CloudinaryField('image')
     rating = models.DecimalField(default=0, decimal_places=1, max_digits=1)
@@ -55,12 +54,11 @@ class Medication(AbstractBaseModel):
     scientific_name = models.CharField(max_length=50)
     units_moved = models.IntegerField(default=0)
 
-
     def __str__(self):
         return self.name
 
 
-class Category(AbstractBaseModel):
+class Category(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     scientific_name = models.CharField(max_length=50, null=True)
@@ -101,4 +99,3 @@ class Rating(AbstractBaseModel):
         on_delete=models.CASCADE
     )
     rating = models.IntegerField()
-    
