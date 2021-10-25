@@ -48,10 +48,13 @@ class Medication(AbstractBaseModel):
     )
     description = models.TextField(blank=True)
     usage = models.TextField(blank=True)
+    side_effects = models.TextField(blank=True)
+    precautions = models.TextField(blank=True)
     type  = models.CharField(max_length=50, choices=MEDICATION_TYPE)
     image = CloudinaryField('image')
     scientific_name = models.CharField(max_length=50)
     units_moved = models.IntegerField(default=0)
+
 
     def __str__(self):
         return self.name
