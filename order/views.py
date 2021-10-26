@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from . import models, serializers
@@ -16,6 +17,14 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = models.Order.objects.all()
     serializer_class = serializers.UpdateOrderSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        items_serializer = serializers.FetchItemsSerializer(instance.items.all(), many=True)
+        data['items'] =  items_serializer.data
+        return Response(data=data)
 
     
 class CreateListLocationsView(generics.ListCreateAPIView):

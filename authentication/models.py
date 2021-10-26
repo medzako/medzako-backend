@@ -102,6 +102,7 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    d_o_b = models.DateField()
 
     def __str__(self):
         return f'{self.full_name}'

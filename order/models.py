@@ -4,6 +4,8 @@ from django.db import models
 from core.models import AbstractBaseModel
 from core.utils.constants import PAYMENTS
 
+STATUSES = (('Received', 'Received'), ('On Transit', 'On Transit'), ('Delivered', 'Delivered'), ('Cancelled', 'Cancelled'))
+
 class Order(AbstractBaseModel):
     customer = models.ForeignKey(
         'authentication.User',
@@ -17,7 +19,6 @@ class Order(AbstractBaseModel):
         related_name='orders',
         null=True
     ),
-    is_completed = models.BooleanField(default=False)
     total_price = models.DecimalField(max_digits=9, decimal_places=2)
     payment = models.OneToOneField(
         'order.Payment',
@@ -30,6 +31,11 @@ class Order(AbstractBaseModel):
         on_delete=models.SET_NULL,
         related_name='orders',
         null=True
+    )
+    status = models.CharField(
+        choices=STATUSES,
+        default="Received",
+        max_length=30
     )
     is_payment_complete = models.BooleanField(default=False)
 
