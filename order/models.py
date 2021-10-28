@@ -19,6 +19,7 @@ class Order(AbstractBaseModel):
         null=True
     ),
     total_price = models.DecimalField(max_digits=9, decimal_places=2)
+    is_completed = models.BooleanField(default=False)
     payment = models.OneToOneField(
         'order.Payment',
         on_delete=models.SET_NULL,
