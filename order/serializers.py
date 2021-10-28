@@ -1,7 +1,7 @@
-from django.db.models import fields
 from rest_framework import serializers
 
 from . import models
+from medication.serializers import MedicationSerializer
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -12,6 +12,14 @@ class ItemsSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'order': {'read_only':True},
         }
+
+
+class FetchItemsSerializer(serializers.ModelSerializer):
+    medication = MedicationSerializer()
+    
+    class Meta:
+        model = models.OrderItem
+        fields = '__all__'
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -64,4 +72,20 @@ class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Location
+        fields = '__all__'
+
+
+class ImageUploadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Image
+        fields = '__all__'
+
+
+class RetrieveOrderSerializer(serializers.ModelSerializer):
+    
+    prescription = ImageUploadSerializer()
+    
+    class Meta:
+        model = models.Order
         fields = '__all__'

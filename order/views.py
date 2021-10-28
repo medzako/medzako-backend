@@ -20,7 +20,7 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        serializer = serializers.RetrieveOrderSerializer(instance)
         data = serializer.data
         items_serializer = serializers.FetchItemsSerializer(instance.items.all(), many=True)
         data['items'] =  items_serializer.data
@@ -43,3 +43,9 @@ class RetrieveUpdateLocation(generics.RetrieveUpdateAPIView):
 
     def get_queryset(self):
         return self.request.user.locations.all()
+
+
+class UploadimageView(generics.CreateAPIView):
+    """Uploads Image"""
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.ImageUploadSerializer

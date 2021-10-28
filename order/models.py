@@ -1,10 +1,9 @@
-from re import match
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 from core.models import AbstractBaseModel
-from core.utils.constants import PAYMENTS
+from core.utils.constants import PAYMENTS, STATUSES
 
-STATUSES = (('Received', 'Received'), ('On Transit', 'On Transit'), ('Delivered', 'Delivered'), ('Cancelled', 'Cancelled'))
 
 class Order(AbstractBaseModel):
     customer = models.ForeignKey(
@@ -38,6 +37,13 @@ class Order(AbstractBaseModel):
         max_length=30
     )
     is_payment_complete = models.BooleanField(default=False)
+
+    prescription = models.OneToOneField(
+        'order.Image',
+        related_name='order',
+        on_delete=models.SET_NULL,
+        null=True
+    )
 
     def __str__(self):
         return f'{self.customer.full_name} Order: {self.pk}'
@@ -76,3 +82,7 @@ class Location(models.Model):
     general_area = models.CharField(max_length=50)
     apartment_name = models.CharField(max_length=50, null=True)
     room_no = models.CharField(max_length=20, null=True)
+
+
+class Image(models.Model):
+    image = CloudinaryField('image')

@@ -1,8 +1,6 @@
 PAYMENTS = (
-    ('POD', 'Pay on delivery',),
     ('MPESA', 'MPESA', ),
-    ('VISA', 'Visa Card',),
-    ('MASTERCARD', 'Master Card',),
+    ('CARD', 'Visa/Mastercard Card',),
 )
 
 MEDICATION_TYPE = (
@@ -10,3 +8,5 @@ MEDICATION_TYPE = (
     ('PO', 'Pharmacy Only',),
     ('P', 'Prescription', ),
 )
+
+STATUSES = (('Received', 'Received'), ('On Transit', 'On Transit'), ('Delivered', 'Delivered'), ('Cancelled', 'Cancelled'))
