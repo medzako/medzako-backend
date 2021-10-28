@@ -84,7 +84,10 @@ class RetrieveUpdateDestroyMedicationView(generics.RetrieveUpdateDestroyAPIView)
 
 
 class RetrieveUpdateDestroyCategoryView(generics.RetrieveUpdateDestroyAPIView):
-    """Retrieve, update, and delete Category"""
+    """
+    Retrieve, update, and delete Category
+    Also fetches medication under this category
+    """
 
     permission_classes = [IsAdminOrReadOnly]
     queryset = models.Category.objects.all()
@@ -94,8 +97,8 @@ class RetrieveUpdateDestroyCategoryView(generics.RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        medication_serializer = serializers.MedicationSerializer(instance.medication, many=True)
-        data['medication'] = medication_serializer.data
+        medication_serializer = serializers.MedicationSerializer(instance.medications, many=True)
+        data['medications'] = medication_serializer.data
         return Response(data=data)
 
 
