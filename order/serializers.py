@@ -1,4 +1,3 @@
-from django.db.models import fields
 from rest_framework import serializers
 
 from . import models
@@ -79,9 +78,16 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class LocationSerializer(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        validated_data['customer'] = self.context['request'].user
+        return super().create(validated_data)
+
     class Meta:
         model = models.Location
         fields = '__all__'
+        extra_kwargs = {
+            'customer': {'read_only': True}
+        }
 
 
 class ImageUploadSerializer(serializers.ModelSerializer):
@@ -94,6 +100,8 @@ class ImageUploadSerializer(serializers.ModelSerializer):
 class RetrieveOrderSerializer(serializers.ModelSerializer):
     
     prescription = ImageUploadSerializer()
+    location = LocationSerializer()
+    pharmacy = MinimizedPharmacySerializer()
     
     class Meta:
         model = models.Order

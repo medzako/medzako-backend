@@ -11,13 +11,7 @@ class Order(AbstractBaseModel):
         on_delete=models.SET_NULL,
         related_name='orders',
         null=True
-    )
-    location = models.ForeignKey(
-        'order.Location',
-        on_delete=models.SET_NULL,
-        related_name='orders',
-        null=True
-    ),
+    )   
     total_price = models.DecimalField(max_digits=9, decimal_places=2)
     is_completed = models.BooleanField(default=False)
     payment = models.OneToOneField(
@@ -46,6 +40,16 @@ class Order(AbstractBaseModel):
         null=True
     )
 
+    delivery_fee = models.DecimalField(max_digits=9, decimal_places=2)
+
+    location = models.ForeignKey(
+        'order.Location',
+        on_delete=models.CASCADE,
+        related_name='location_orders',
+        null=True
+    )
+
+
     def __str__(self):
         return f'{self.customer.full_name} Order: {self.pk}'
 
@@ -62,6 +66,8 @@ class OrderItem(AbstractBaseModel):
         related_name='order'
         )
     quantity =  models.IntegerField()
+
+    price = models.DecimalField(max_digits=9, decimal_places=2)
 
     def __str__(self):
         return f'{self.medication.name} Item: {self.pk}'

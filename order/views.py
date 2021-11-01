@@ -12,6 +12,9 @@ class CreateListOrdersView(generics.ListCreateAPIView):
     queryset = models.Order.objects.all()
     serializer_class = serializers.OrderSerializer
 
+    def get_queryset(self):
+        return self.request.user.orders.all()
+
     def get_serializer(self, *args, **kwargs):
 
         serializer = super().get_serializer(*args, **kwargs)
