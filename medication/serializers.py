@@ -42,6 +42,12 @@ class SinglePharmacySerializer(serializers.ModelSerializer):
         model = models.Pharmacy
         fields = '__all__'
 
+class MinimizedPharmacySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Pharmacy
+        fields = ['id', 'name']
+
 
 class RatesSerializer(serializers.ModelSerializer):
 

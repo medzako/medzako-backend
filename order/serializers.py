@@ -1,7 +1,8 @@
+from django.db.models import fields
 from rest_framework import serializers
 
 from . import models
-from medication.serializers import MedicationSerializer
+from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -38,6 +39,14 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
         return instance
+    
+    class Meta:
+        model = models.Order
+        fields = '__all__'
+
+class FetchOrderSerializer(serializers.ModelSerializer):
+
+    pharmacy = MinimizedPharmacySerializer()
     
     class Meta:
         model = models.Order
