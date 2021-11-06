@@ -1,3 +1,4 @@
+from rest_framework import filters
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -102,9 +103,17 @@ class RetrieveUpdateDestroyCategoryView(generics.RetrieveUpdateDestroyAPIView):
         return Response(data=data)
 
 
-
 class RatePharmacyView(generics.CreateAPIView):
     """Rate Order"""
     permission_classes = [IsAuthenticated]
     queryset = models.Rating.objects.all()
     serializer_class = serializers.RatesSerializer
+
+
+class SearchMedication(generics.ListCreateAPIView):
+    "Search medication by adding ?search=name parameter to the URL"
+    
+    search_fields = ['name', 'scientific_name']
+    filter_backends = (filters.SearchFilter,)
+    queryset = models.Medication.objects.all()
+    serializer_class = serializers.MedicationSerializer
