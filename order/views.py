@@ -1,3 +1,6 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -70,3 +73,20 @@ class UploadimageView(generics.CreateAPIView):
     """Uploads Image"""
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.ImageUploadSerializer
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PaymentView(generics.ListCreateAPIView):
+    """Payment Web hook"""
+
+    permission_classes = []
+    serializer_class = serializers.PaymentSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            super().create(request, *args, **kwargs)
+        except AssertionError as e:
+            print(e)
+            pass
+        
+        return Response({})
+    

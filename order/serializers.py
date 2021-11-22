@@ -71,6 +71,34 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
 class PaymentSerializer(serializers.ModelSerializer):
 
+    def is_valid(self, raise_exception=False):
+
+        if self.initial_data.get('event') == 'charge.completed':
+           data = self.initial_data.get('data')
+           data['event_id'] = data.get('id')
+           customer = data.get('customer')
+           if customer:
+               customer_email = customer.get('email')
+               customer_phone_no = customer.get('phone_number')
+               data['customer_email'] = customer_email
+               data['customer_phone_no'] = customer_phone_no
+               
+
+           self.initial_data = data
+
+        raise_exception=False
+
+        return super().is_valid(raise_exception=raise_exception)
+
+    def save(self, **kwargs):
+        instance =  super().save(**kwargs)
+        order = models.Order.objects.filter(customer__email=instance.customer_email, payment=None).order_by('-id').first()
+        if order:
+            order.payment = instance
+            order.is_payment_complete = True
+            order.save()
+        return instance
+
     class Meta:
         model = models.Payment
         fields = '__all__'

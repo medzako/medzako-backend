@@ -75,7 +75,13 @@ class OrderItem(AbstractBaseModel):
 
 class Payment(AbstractBaseModel):
     amount = models.DecimalField(max_digits=9, decimal_places=2)
-    payment_type = models.CharField(choices=PAYMENTS, max_length=50)
+    payment_type = models.CharField(max_length=30)
+    event_id = models.CharField(max_length=50, unique=True)
+    charged_amount = models.DecimalField(max_digits=6, decimal_places=2)
+    customer_email = models.EmailField()
+    customer_phone_no = models.CharField(max_length=30)
+    status = models.CharField(max_length=30)
+
 
 
 class Location(models.Model):
