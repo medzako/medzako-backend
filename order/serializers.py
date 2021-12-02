@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
+from core.utils.helpers import generate_random_string
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -30,12 +31,22 @@ class OrderSerializer(serializers.ModelSerializer):
         validated_data['customer'] = self.context['request'].user
         instance = self.Meta.model._default_manager.create(**validated_data)
 
+
         for item in items:
             item['order'] = instance
             models.OrderItem._default_manager.create(**item)
 
         self.fields.pop('items')
 
+        tracking_id = generate_random_string(12)
+        tracking_info = {
+            'order': instance,
+            'lat': instance.pharmacy.location_lat,
+            'long': instance.pharmacy.location_long,
+            'tracking_id': tracking_id
+        }
+        
+        models.CurrentOrderLocation.objects.create(**tracking_info)
 
         return instance
     

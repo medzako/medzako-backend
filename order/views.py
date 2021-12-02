@@ -48,6 +48,7 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
         data = serializer.data
         items_serializer = serializers.FetchItemsSerializer(instance.items.all(), many=True)
         data['items'] =  items_serializer.data
+        data['tracking_id'] = instance.tracking_object.tracking_id
         return Response(data=data)
 
     

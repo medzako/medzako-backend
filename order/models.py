@@ -99,3 +99,14 @@ class Location(models.Model):
 
 class Image(models.Model):
     image = CloudinaryField('image')
+
+
+class CurrentOrderLocation(AbstractBaseModel):
+    order = models.OneToOneField(
+        'order.Order',
+        on_delete=models.CASCADE,
+        related_name='tracking_object',
+    )
+    tracking_id = models.CharField(max_length=50)
+    lat = models.DecimalField(max_digits=9, decimal_places=6)
+    long = models.DecimalField(max_digits=9, decimal_places=6)

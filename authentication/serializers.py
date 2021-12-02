@@ -1,6 +1,3 @@
-from weakref import ProxyTypes
-from django.utils.crypto import get_random_string
-
 from rest_framework import serializers
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
