@@ -68,6 +68,18 @@ class StockSerializer(serializers.ModelSerializer):
             }
         }
 
+class SearchStockSerializer(serializers.ModelSerializer):
+    medication = MedicationSerializer()
+
+    class Meta:
+        model = models.PharmacyStock
+        fields = '__all__'
+        extra_kwargs = {
+            'medication': {
+                'write_only': True
+            }
+        }
+
 
 class MedicationStockSerializer(serializers.ModelSerializer):
     pharmacy = PharmacySerializer()

@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'authentication',
+    'rest_framework_simplejwt',
     'cloudinary',
     'medication',
     'order',
@@ -104,7 +105,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
-    "ALGORITHM": "HS256",
+    "ALGORITHM": "HS512",
     "SIGNING_KEY": settings.SECRET_KEY,
     "VERIFYING_KEY": None,
     "AUDIENCE": None,

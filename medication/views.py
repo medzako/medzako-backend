@@ -144,3 +144,35 @@ class SearchMedication(generics.ListCreateAPIView):
     filter_backends = (filters.SearchFilter,)
     queryset = models.Medication.objects.all()
     serializer_class = serializers.MedicationSerializer
+
+class SearchPharmacyMedication(generics.ListCreateAPIView):
+    "Search medicationin a pharmacy by adding ?pharmacy_id=<id>&search=name parameter to the URL"
+
+    search_fields = ['name', 'scientific_name']
+    filter_backends = (filters.SearchFilter,)
+
+    def get_queryset(self):
+        pharmacy_id = self.request.query_params.get('pharmacy_id')
+        self.pharmacy_id = pharmacy_id
+        pharmacy = generics.get_object_or_404(models.Pharmacy, pk=pharmacy_id)
+        available_stock = pharmacy.available_stock.filter(in_stock=True)
+        self.available_stock = available_stock
+        medications_ids = [stock.medication.id for stock in available_stock]
+        return models.Medication.objects.filter(id__in=medications_ids)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        medication_ids = [medication.id for medication in queryset]
+        queryset = models.PharmacyStock.objects.filter(medication__in=medication_ids, pharmacy=self.pharmacy_id)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    queryset = models.Medication.objects.all()
+    serializer_class = serializers.SearchStockSerializer
+

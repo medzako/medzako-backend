@@ -103,6 +103,7 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     d_o_b = models.DateField(null=True)
+    rider_profile = models
 
     def __str__(self):
         return f'{self.full_name}'

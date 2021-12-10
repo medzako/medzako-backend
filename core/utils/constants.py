@@ -9,4 +9,4 @@ MEDICATION_TYPE = (
     ('P', 'Prescription', ),
 )
 
-STATUSES = (('Received', 'Received'), ('On Transit', 'On Transit'), ('Delivered', 'Delivered'), ('Cancelled', 'Cancelled'))
+STATUSES = (('Received', 'Received'), ('Packaged', 'Packaged'), ('On Transit', 'On Transit'), ('Delivered', 'Delivered'), ('Cancelled', 'Cancelled'))
