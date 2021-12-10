@@ -35,7 +35,6 @@ class CreateListOrdersView(generics.ListCreateAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-
 class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
     """Retrieve and Update Order"""
     permission_classes = [IsAuthenticated]

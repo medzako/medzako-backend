@@ -51,7 +51,7 @@ class Medication(AbstractBaseModel):
     precautions = models.TextField(blank=True)
     type  = models.CharField(max_length=50, choices=MEDICATION_TYPE)
     image = CloudinaryField('image')
-    scientific_name = models.CharField(max_length=50)
+    scientific_name = models.CharField(max_length=50, null=True)
     units_moved = models.IntegerField(default=0)
 
     def __str__(self):
@@ -79,12 +79,15 @@ class PharmacyStock(AbstractBaseModel):
         related_name='available_stock',
         on_delete=models.CASCADE
         )
-    stock = models.IntegerField(default=0)
+    in_stock = models.BooleanField(default=False)
     price = models.DecimalField(decimal_places=2, max_digits=9)
 
 
     def __str__(self):
         return f'{self.pharmacy.name}-{self.medication.name}'
+
+    class Meta:
+        unique_together = ['medication', 'pharmacy']
 
 
 class Rating(AbstractBaseModel):
