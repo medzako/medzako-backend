@@ -1,5 +1,8 @@
 from rest_framework import serializers
+
+from core.utils.helpers import raise_validation_error
 from . import models
+import medication
 
 class MedicationSerializer(serializers.ModelSerializer):
 
@@ -92,3 +95,19 @@ class MedicationStockSerializer(serializers.ModelSerializer):
                 'write_only': True
             }
         }
+
+
+class StockSerializer(serializers.Serializer):
+    in_stock = serializers.BooleanField()
+    medication = serializers.IntegerField()
+
+
+    def create(self, validated_data):
+        in_stock = validated_data.pop('in_stock')
+        pharmacy = self.context['request'].user.pharmacist_profile.pharmacy
+        if not pharmacy:
+            raise_validation_error({"detail": "Create pharmacy first"})
+        instance = models.PharmacyStock.objects.get_or_create(**validated_data, pharmacy=pharmacy.pk)
+        instance.in_stock = in_stock
+        instance.save()
+        return instance

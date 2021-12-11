@@ -12,5 +12,6 @@ urlpatterns = [
     path("categories/<int:pk>/", views.RetrieveUpdateDestroyCategoryView.as_view(), name="update_category"),
     path("pharmacies/rate/", views.RatePharmacyView.as_view(), name="rate_pharmacy"),
     path("search/", views.SearchMedication.as_view(), name="search_medication"),
-    path("search-pharmacy/", views.SearchPharmacyMedication.as_view(), name="search_pharmacy")
+    path("search-pharmacy/", views.SearchPharmacyMedication.as_view(), name="search_pharmacy"),
+    path("set-stock/", views.MedicationStock.as_view(), name="set_stock")
 ]

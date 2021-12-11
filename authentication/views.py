@@ -29,3 +29,16 @@ class FetchUserView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         serializer = serializers.RegistrationSerializer(instance=request.user)
         return Response(serializer.data)
+
+
+class UploadPharmacyLincenseView(generics.CreateAPIView):
+    """Upload Pharmacy License"""
+    permission_classes = [IsAuthenticated]
+    queryset = models.PharmacyLicense.objects.all()
+
+
+class UploadRiderLincenseView(generics.CreateAPIView):
+    """Upload Rider License"""
+    permission_classes = [IsAuthenticated]
+    queryset = models.RiderLicense.objects.all()
+

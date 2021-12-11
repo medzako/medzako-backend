@@ -7,8 +7,11 @@ from django.contrib.auth.models import (
 
 from django.contrib.auth import password_validation
 
+from cloudinary.models import CloudinaryField
+from django.db.models.fields import CharField
 
 from rest_framework.exceptions import ValidationError
+from core.utils.constants import CUSTOMER, PHARMACIST, RIDER, USER_TYPES
 from core.utils.validators import validate_phone_number, validate_required_arguments
 
 
@@ -20,7 +23,7 @@ class UserManager(BaseUserManager):
     '''
 
     def create_user(
-        self, full_name=None, password=None, phone_no=None, email=None, **kwargs
+        self, full_name=None, password=None, phone_no=None, email=None, user_type=None, **kwargs
     ):
         REQUIRED_ARGS = ('full_name', 'password', 'phone_no')
         validate_required_arguments(
@@ -28,7 +31,8 @@ class UserManager(BaseUserManager):
                 'full_name': full_name,
                 'password': password,
                 'phone_no': phone_no,
-                'email': email
+                'email': email,
+                'user_type': user_type
             },
             REQUIRED_ARGS,
         )
@@ -45,13 +49,25 @@ class UserManager(BaseUserManager):
             full_name=full_name,
             email=self.normalize_email(email),
             phone_no=phone_no,
+            user_type=user_type,
             **kwargs
         )
         # ensure phone number and all fields are valid.
         user.clean()
         user.set_password(password)
         user.save()
+        self.create_profile(user_type, user)
         return user
+
+    def create_profile(self, user_type, user):
+        profile_mapper = {
+            CUSTOMER: CustomerProfile,
+            RIDER: RiderProfile,
+            PHARMACIST: PharmacistProfile
+        }
+
+        profile = profile_mapper[user_type].objects.create(user=user)
+        return profile
 
     def create_superuser(
         self, full_name=None, password=None, phone_no=None, email=None, **kwargs
@@ -95,7 +111,6 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     '''
     Custom user model to be used throughout the application.
     '''
-
     full_name = models.CharField(max_length=150)
     phone_no = models.CharField(unique=True, max_length=50, validators=[validate_phone_number])
     email = models.EmailField(unique=True)
@@ -103,8 +118,8 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     d_o_b = models.DateField(null=True)
-    rider_profile = models
-
+    user_type = models.CharField(choices=USER_TYPES, max_length=30, default='customer')
+   
     def __str__(self):
         return f'{self.full_name}'
 
@@ -112,3 +127,65 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['full_name', 'phone_no']
 
     objects = UserManager()
+
+
+class RiderProfile(AbstractBaseModel):
+    """
+    Rider information
+    """
+    user = models.OneToOneField(
+        'User',
+        on_delete=models.CASCADE, 
+        related_name='rider_profile',
+        null=True)
+    is_approved = models.BooleanField(default=False)
+    is_online = models.BooleanField(default=False)
+
+
+class CustomerProfile(AbstractBaseModel):
+    """
+    Customer information
+    """
+    user = models.OneToOneField(
+        'User',
+        on_delete=models.CASCADE, 
+        related_name='customer_profile',
+        null=True)
+
+
+class PharmacistProfile(AbstractBaseModel):
+    """
+    Rider information
+    """
+    user = models.OneToOneField(
+        'User',
+        on_delete=models.CASCADE, 
+        related_name='pharmacist_profile'
+        )
+    pharmacy = models.OneToOneField(
+        'medication.Pharmacy',
+        on_delete=models.CASCADE,
+        related_name='user_profile',
+        null=True
+    )
+    is_approved = models.BooleanField(default=False)
+
+
+class PharmacyLicense(AbstractBaseModel):
+    pharmacist_profile = models.ForeignKey(
+        'PharmacistProfile',
+        on_delete=models.CASCADE, 
+        related_name='licenses'
+    )
+    license_image = CloudinaryField('image')
+    name = models.CharField(max_length=50)
+
+
+class RiderLicense(AbstractBaseModel):
+    customer_profile = models.ForeignKey(
+        'RiderProfile',
+        on_delete=models.CASCADE, 
+        related_name='licenses'
+    )
+    license_image = CloudinaryField('image')
+ 

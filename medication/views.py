@@ -4,12 +4,13 @@ from geopy import distance
 
 from rest_framework import filters
 from rest_framework import generics
+from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Value
 from core.utils.helpers import add_distance_to_pharmacy, get_coordinate_distance, raise_validation_error
 from . import models, serializers
-from core.permissions import IsAdminOrReadOnly
+from core.permissions import IsAdminOrReadOnly, IsPharmacist
 
 RATING = 'rating'
 POPULARITY = 'popularity'
@@ -42,7 +43,7 @@ class CreatePharmacyView(generics.ListCreateAPIView):
         - long
     """
 
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated]
     queryset = models.Pharmacy.objects.all()
     serializer_class = serializers.PharmacySerializer
 
@@ -144,9 +145,14 @@ class SearchMedication(generics.ListCreateAPIView):
     filter_backends = (filters.SearchFilter,)
     queryset = models.Medication.objects.all()
     serializer_class = serializers.MedicationSerializer
+    permission_classes = [IsAuthenticated]
 
 class SearchPharmacyMedication(generics.ListCreateAPIView):
     "Search medicationin a pharmacy by adding ?pharmacy_id=<id>&search=name parameter to the URL"
+
+    queryset = models.Medication.objects.all()
+    serializer_class = serializers.SearchStockSerializer
+    permission_classes = [IsAuthenticated]
 
     search_fields = ['name', 'scientific_name']
     filter_backends = (filters.SearchFilter,)
@@ -173,6 +179,15 @@ class SearchPharmacyMedication(generics.ListCreateAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    queryset = models.Medication.objects.all()
-    serializer_class = serializers.SearchStockSerializer
 
+class MedicationStock(generics.GenericAPIView):
+    """Set stock to on or off"""
+    permission_classes = [IsPharmacist]
+    serializer_class = serializers.StockSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        data = self.get_serializer(instance=instance).data
+        return Response(data=data)

@@ -110,3 +110,21 @@ class CurrentOrderLocation(AbstractBaseModel):
     tracking_id = models.CharField(max_length=50)
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     long = models.DecimalField(max_digits=9, decimal_places=6)
+
+
+class RiderEarining(AbstractBaseModel):
+    order = models.ForeignKey(
+        'order.Order',
+        on_delete=models.CASCADE,
+        related_name='earning',
+    )
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
+
+
+class PharmacyEarining(AbstractBaseModel):
+    order = models.ForeignKey(
+        'order.Order',
+        on_delete=models.CASCADE,
+        related_name='pharmacy_earning',
+    )
+    amount = models.DecimalField(max_digits=9, decimal_places=2)

@@ -74,6 +74,11 @@ class UploadimageView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.ImageUploadSerializer
 
+class DeleteimageView(generics.DestroyAPIView):
+    """Delete Image"""
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.ImageUploadSerializer
+
 @method_decorator(csrf_exempt, name='dispatch')
 class PaymentView(generics.ListCreateAPIView):
     """Payment Web hook"""
