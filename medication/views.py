@@ -34,7 +34,7 @@ class CreateListCategoriesView(generics.ListCreateAPIView):
     serializer_class = serializers.CategorySerializer
 
 
-class CreatePharmacyView(generics.ListCreateAPIView):
+class ListPharmacyView(generics.ListAPIView):
     """
     Creates and list Pharmacies
     query parameters:
@@ -59,25 +59,32 @@ class CreatePharmacyView(generics.ListCreateAPIView):
         return queryset
 
     def list(self, request, *args, **kwargs):
-        lat = request.query_params.get('lat')
-        long = request.query_params.get('long')
+        
         order_by = self.request.query_params.get('order-by', PROXIMITY)
-
-        try:
-            lat = Decimal(lat)
-            long = Decimal(long)
-        except ValueError:
-            return raise_validation_error({'detail': 'Ensure the latitude and the longitude are decimals'})
         
         queryset = self.filter_queryset(self.get_queryset())
 
         serializer = self.get_serializer(queryset, many=True)
         data = serializer.data.copy()
-        data = [add_distance_to_pharmacy(item, (lat, long)) for item in data]
         
         if order_by == PROXIMITY:
+            lat = request.query_params.get('lat')
+            long = request.query_params.get('long')
+            try:
+                lat = Decimal(lat)
+                long = Decimal(long)
+            except ValueError:
+                raise_validation_error({'detail': 'Ensure the latitude and the longitude are specified decimals'})
+            data = [add_distance_to_pharmacy(item, (lat, long)) for item in data]
             data = sorted(data, key=lambda x: x['distance'], reverse=False)
         return Response(data)
+
+
+class CreatePharmacyView(generics.CreateAPIView):
+    """Create pharmacy"""
+    permission_classes = [IsPharmacist]
+    queryset = models.Pharmacy.objects.all()
+    serializer_class = serializers.PharmacySerializer
 
 
 class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateDestroyAPIView):

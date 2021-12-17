@@ -34,6 +34,13 @@ class SingleMedicationSerializer(serializers.ModelSerializer):
 
 class PharmacySerializer(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        profile = self.context['request'].user.pharmacist_profile
+        profile.pharmacy = instance
+        profile.save()
+        return instance
+
     class Meta:
         model = models.Pharmacy
         fields = '__all__'
@@ -99,15 +106,17 @@ class MedicationStockSerializer(serializers.ModelSerializer):
 
 class StockSerializer(serializers.Serializer):
     in_stock = serializers.BooleanField()
-    medication = serializers.IntegerField()
-
+    medication = serializers.PrimaryKeyRelatedField(queryset=models.Medication.objects.all())
+    price = serializers.DecimalField(decimal_places=2, max_digits=9)
 
     def create(self, validated_data):
         in_stock = validated_data.pop('in_stock')
+        price = validated_data.pop('price')
         pharmacy = self.context['request'].user.pharmacist_profile.pharmacy
         if not pharmacy:
             raise_validation_error({"detail": "Create pharmacy first"})
-        instance = models.PharmacyStock.objects.get_or_create(**validated_data, pharmacy=pharmacy.pk)
+        instance, _ = models.PharmacyStock.objects.get_or_create(**validated_data, pharmacy=pharmacy)
         instance.in_stock = in_stock
+        instance.price = price
         instance.save()
         return instance

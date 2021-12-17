@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
-from core.utils.helpers import generate_random_string
+from core.utils.helpers import generate_random_string, raise_validation_error
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -145,3 +145,4 @@ class RetrieveOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = '__all__'
+        

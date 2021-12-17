@@ -49,7 +49,6 @@ class Order(AbstractBaseModel):
         null=True
     )
 
-
     def __str__(self):
         return f'{self.customer.full_name} Order: {self.pk}'
 
@@ -90,8 +89,8 @@ class Location(models.Model):
         related_name='locations',
         on_delete=models.CASCADE
     )
-    lat = models.DecimalField(max_digits=9, decimal_places=6)
-    long = models.DecimalField(max_digits=9, decimal_places=6)
+    lat = models.DecimalField(max_digits=45, decimal_places=40)
+    long = models.DecimalField(max_digits=45, decimal_places=40)
     general_area = models.CharField(max_length=50)
     apartment_name = models.CharField(max_length=50, null=True)
     room_no = models.CharField(max_length=20, null=True)
@@ -108,8 +107,8 @@ class CurrentOrderLocation(AbstractBaseModel):
         related_name='tracking_object',
     )
     tracking_id = models.CharField(max_length=50)
-    lat = models.DecimalField(max_digits=9, decimal_places=6)
-    long = models.DecimalField(max_digits=9, decimal_places=6)
+    lat = models.DecimalField(max_digits=45, decimal_places=40)
+    long = models.DecimalField(max_digits=45, decimal_places=40)
 
 
 class RiderEarining(AbstractBaseModel):

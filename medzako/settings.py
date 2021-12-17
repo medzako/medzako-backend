@@ -192,6 +192,13 @@ SWAGGER_SETTINGS = {
       }
    }
 }
+BROKER_URL = os.getenv("BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Africa/Nairobi'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json','application/text']
 
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 

@@ -9,8 +9,8 @@ from core.models import AbstractBaseModel
 
 class Pharmacy(AbstractBaseModel):
     name = models.CharField(max_length=100)
-    location_lat = models.DecimalField(max_digits=9, decimal_places=6)
-    location_long = models.DecimalField(max_digits=9, decimal_places=6)
+    location_lat = models.DecimalField(max_digits=45, decimal_places=40)
+    location_long = models.DecimalField(max_digits=45, decimal_places=40)
     contact_no = models.CharField(unique=True, max_length=50, validators=[validate_phone_number])
     location_name = models.CharField(max_length=50, null=True)
     image = CloudinaryField('image')

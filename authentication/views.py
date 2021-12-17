@@ -5,6 +5,8 @@ from rest_framework.response import Response
 
 from rest_framework_simplejwt.views import TokenViewBase
 
+from core.permissions import IsRider
+
 from . import serializers
 from . import models
 
@@ -42,3 +44,15 @@ class UploadRiderLincenseView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = models.RiderLicense.objects.all()
 
+
+class CurrentRiderLocationView(generics.GenericAPIView):
+    """Update rider location"""
+    permission_classes = [IsRider]
+    serializer_class = serializers.RiderLocationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        data = self.get_serializer(instance=instance).data
+        return Response(data=data)

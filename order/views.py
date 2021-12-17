@@ -5,6 +5,8 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from core.permissions import IsRider
+
 from . import models, serializers
 
 
@@ -34,6 +36,7 @@ class CreateListOrdersView(generics.ListCreateAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
 
 class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
     """Retrieve and Update Order"""
@@ -74,10 +77,12 @@ class UploadimageView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.ImageUploadSerializer
 
+
 class DeleteimageView(generics.DestroyAPIView):
     """Delete Image"""
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.ImageUploadSerializer
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PaymentView(generics.ListCreateAPIView):

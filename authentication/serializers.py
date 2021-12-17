@@ -47,3 +47,18 @@ class RiderLicenseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.RiderLicense
+
+
+class RiderLocationSerializer(serializers.Serializer):
+    lat = serializers.DecimalField(decimal_places=6, max_digits=40)
+    long = serializers.DecimalField(decimal_places=6, max_digits=40)
+
+    def create(self, validated_data):
+        lat = validated_data.pop('lat')
+        long = validated_data.pop('long')
+        rider_profile = self.context['request'].user.rider_profile
+        instance, _ = models.CurrentRiderLocation.objects.get_or_create(rider_profile=rider_profile)
+        instance.lat = lat
+        instance.long = long
+        instance.save()
+        return instance

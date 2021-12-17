@@ -188,4 +188,13 @@ class RiderLicense(AbstractBaseModel):
         related_name='licenses'
     )
     license_image = CloudinaryField('image')
- 
+
+
+class CurrentRiderLocation(AbstractBaseModel):
+    rider_profile = models.OneToOneField(
+        'RiderProfile',
+        on_delete=models.CASCADE,
+        related_name='current_location',
+    )
+    lat = models.DecimalField(max_digits=45, decimal_places=40, null=True)
+    long = models.DecimalField(max_digits=45, decimal_places=40, null=True)

@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from core.utils.constants import PHARMACIST
+from core.utils.constants import PHARMACIST, RIDER
 
 SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 
@@ -29,6 +29,21 @@ class IsPharmacist(BasePermission):
             request.user and
             request.user.is_authenticated and 
             request.user.user_type==PHARMACIST):
+            return True
+            
+        return False
+
+
+class IsRider(BasePermission):
+    """
+    The request is authenticated as a rider.
+    """
+    
+    def has_permission(self, request, view):
+        if (
+            request.user and
+            request.user.is_authenticated and 
+            request.user.user_type==RIDER):
             return True
             
         return False

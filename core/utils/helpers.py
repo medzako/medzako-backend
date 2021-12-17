@@ -24,5 +24,12 @@ def add_distance_to_pharmacy(pharmacy_dict, cood2):
     pharmacy_dict['distance'] = distance
     return pharmacy_dict
 
+
 def generate_random_string(length):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k = length))  
+
+
+def get_rider(destination):
+    lat, long = destination
+    
+
