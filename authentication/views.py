@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -27,6 +28,8 @@ class FetchUserView(generics.GenericAPIView):
     """Fetch user data"""
 
     permission_classes = [IsAuthenticated]
+    queryset = QuerySet()
+    serializer_class = serializers.RegistrationSerializer
 
     def get(self, request, *args, **kwargs):
         serializer = serializers.RegistrationSerializer(instance=request.user)
@@ -37,12 +40,14 @@ class UploadPharmacyLincenseView(generics.CreateAPIView):
     """Upload Pharmacy License"""
     permission_classes = [IsAuthenticated]
     queryset = models.PharmacyLicense.objects.all()
+    serializer_class = serializers.PharmacyLicenseSerializer
 
 
 class UploadRiderLincenseView(generics.CreateAPIView):
     """Upload Rider License"""
     permission_classes = [IsAuthenticated]
     queryset = models.RiderLicense.objects.all()
+    serializer_class = serializers.RiderLicenseSerializer
 
 
 class CurrentRiderLocationView(generics.GenericAPIView):

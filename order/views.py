@@ -1,3 +1,5 @@
+from django.contrib.auth.models import AnonymousUser
+from django.db.models.query import QuerySet
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -67,21 +69,27 @@ class RetrieveUpdateLocation(generics.RetrieveUpdateAPIView):
     """Retrieve and Update Location"""
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.LocationSerializer
+    queryset = models.Location.objects.all()
 
     def get_queryset(self):
-        return self.request.user.locations.all()
+        queryset = QuerySet()
+        if not self.request.user.is_anonymous:
+            queryset = self.request.user.locations.all()
+        return queryset
 
 
 class UploadimageView(generics.CreateAPIView):
     """Uploads Image"""
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.ImageUploadSerializer
+    queryset = models.Image.objects.all()
 
 
 class DeleteimageView(generics.DestroyAPIView):
     """Delete Image"""
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.ImageUploadSerializer
+    queryset = models.Image.objects.all()
 
 
 @method_decorator(csrf_exempt, name='dispatch')

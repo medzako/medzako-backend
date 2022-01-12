@@ -3,10 +3,7 @@ import random
 import string
 from decimal import Decimal
 from rest_framework.exceptions import ValidationError
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.settings import api_settings
-from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken, TokenError
-from channels.db import database_sync_to_async
+from medzako.celery import app
 
 def raise_validation_error(message=None):
     raise ValidationError(message)
@@ -26,10 +23,11 @@ def add_distance_to_pharmacy(pharmacy_dict, cood2):
 
 
 def generate_random_string(length):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = length))  
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = length))
 
-
-def get_rider(destination):
-    lat, long = destination
-    
-
+app.task()
+def get_rider(destination, rider_locations, maximum_radius):
+    riders_distances = [(rider_location.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
+    riders_distances.sort(key=lambda x: x[1])
+    if riders_distances[0][1] < maximum_radius:
+        return riders_distances[0]

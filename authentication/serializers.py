@@ -41,12 +41,14 @@ class PharmacyLicenseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.PharmacyLicense
+        fields = '__all__'
 
 
 class RiderLicenseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.RiderLicense
+        fields = '__all__'
 
 
 class RiderLocationSerializer(serializers.Serializer):
