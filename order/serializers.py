@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from core.utils.constants import DELIVERED
+
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
 from core.utils.helpers import generate_random_string, raise_validation_error
@@ -54,9 +56,19 @@ class OrderSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = '__all__'
 
+
+class ImageUploadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Image
+        fields = '__all__'
+
+
 class FetchOrderSerializer(serializers.ModelSerializer):
 
     pharmacy = MinimizedPharmacySerializer()
+    prescription = ImageUploadSerializer()
+
     
     class Meta:
         model = models.Order
@@ -65,9 +77,16 @@ class FetchOrderSerializer(serializers.ModelSerializer):
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
 
+    def is_valid(self, raise_exception=False):
+        if self.instance is not None and not self.instance.is_payment_complete:
+            raise_validation_error({'detail': 'Invalid request. Customer payment not complete'})
+
+        return super().is_valid(raise_exception)
+
     def save(self, **kwargs):
         instance =  super().save(**kwargs)
-        if instance.is_completed:
+        if instance.is_completed or instance.status == DELIVERED:
+            models.OrderEarning.objects.create(order=instance, pharmacist=instance.pharmacy.user_profile.user, pharmacy_earning=instance.total_price, rider_earning=50)
             instance.pharmacy.completed_orders += 1
             instance.pharmacy.save()
             for item in instance.items.all():
@@ -77,7 +96,7 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Order
-        fields = ['is_completed', 'is_payment_complete']
+        fields = ['is_completed', 'is_payment_complete', 'status', 'action_reason']
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -129,13 +148,6 @@ class LocationSerializer(serializers.ModelSerializer):
         }
 
 
-class ImageUploadSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Image
-        fields = '__all__'
-
-
 class RetrieveOrderSerializer(serializers.ModelSerializer):
     
     prescription = ImageUploadSerializer()
@@ -145,4 +157,14 @@ class RetrieveOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = '__all__'
+
+
+class OrderEarningsSerializer(serializers.ModelSerializer):
+
+    order = FetchOrderSerializer()
+
+    class Meta:
+        model = models.OrderEarning
+        fields = '__all__'
+
         

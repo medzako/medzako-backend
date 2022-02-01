@@ -13,10 +13,11 @@ from . import models, serializers
 
 
 class CreateListOrdersView(generics.ListCreateAPIView):
-    """Creates and List Orders"""
+    """Creates and List Orders. Use ?status=<status> or is_complete=<boolean> to filter the orders"""
     permission_classes = [IsAuthenticated]
     queryset = models.Order.objects.all()
     serializer_class = serializers.OrderSerializer
+    filterset_fields = ('status', 'is_completed')
 
     def get_queryset(self):
         return self.request.user.orders.all()
@@ -90,6 +91,18 @@ class DeleteimageView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.ImageUploadSerializer
     queryset = models.Image.objects.all()
+
+
+class FetchEarningsView(generics.GenericAPIView):
+    """Fetch user earnings"""
+
+    permission_classes = [IsAuthenticated]
+    queryset = QuerySet()
+    serializer_class = serializers.OrderEarningsSerializer
+
+    def get(self, request, *args, **kwargs):
+        serializer = serializers.OrderEarningsSerializer(request.user.earnings, many=True)
+        return Response(serializer.data)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

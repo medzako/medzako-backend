@@ -80,7 +80,7 @@ class PharmacyStock(AbstractBaseModel):
         on_delete=models.CASCADE
         )
     in_stock = models.BooleanField(default=False)
-    price = models.DecimalField(decimal_places=2, max_digits=9)
+    price = models.DecimalField(decimal_places=2, max_digits=9, null=True)
 
 
     def __str__(self):

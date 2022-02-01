@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework import serializers
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -11,7 +12,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     user_type = serializers.ChoiceField(choices=USER_TYPES)
 
     def create(self, validated_data):
-        user = models.User.objects.create_user(**validated_data)
+        try:
+            user = models.User.objects.create_user(**validated_data)
+        except ValidationError as e:
+            pass
         user.save()
         return user
 
