@@ -11,5 +11,5 @@ urlpatterns = [
     path("image/", views.UploadimageView.as_view(), name="upload_image"),
     path("image/<int:pk>/", views.DeleteimageView.as_view(), name="delete_image"),
     path("payment-webhook/", views.PaymentView.as_view(), name="payment_webhook"),
-    path("earnings", views.FetchEarningsView.as_view(), name="fetch_earnings"),
+    path("earnings/", views.FetchEarningsView.as_view(), name="fetch_earnings"),
 ]
