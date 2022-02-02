@@ -81,8 +81,8 @@ class ListPharmacyView(generics.ListAPIView):
 
 
 class CreatePharmacyView(generics.CreateAPIView):
-    """Create pharmacy"""
-    permission_classes = [IsPharmacist]
+    """Create pharmacy. Includes a user input that should be the user id of the pharmacist you are registering"""
+    permission_classes = []
     queryset = models.Pharmacy.objects.all()
     serializer_class = serializers.PharmacySerializer
 

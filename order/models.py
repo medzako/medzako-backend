@@ -118,8 +118,8 @@ class OrderEarning(AbstractBaseModel):
         related_name='earning',
         null=True
     )
-    pharmacist = models.ForeignKey(
-        'authentication.User',
+    pharmacy = models.ForeignKey(
+        'medication.Pharmacy',
         on_delete=models.SET_NULL,
         related_name='pharmacy_earnings',
         null=True

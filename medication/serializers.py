@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from authentication.models import User
+from core.utils.constants import PHARMACIST
 
 from core.utils.helpers import raise_validation_error
 from . import models
@@ -33,10 +35,17 @@ class SingleMedicationSerializer(serializers.ModelSerializer):
 
 
 class PharmacySerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
 
     def create(self, validated_data):
+        user = validated_data.pop('user')
+        profile = user.pharmacist_profile
+        if profile.pharmacy:
+            raise_validation_error({'detail': 'User already registered to a pharmacy'})
+        self.fields.pop('user')
+        if user.user_type != PHARMACIST:
+            raise_validation_error({'detail': 'User must be of pharmacist usertype'})
         instance = super().create(validated_data)
-        profile = self.context['request'].user.pharmacist_profile
         profile.pharmacy = instance
         profile.save()
         return instance
@@ -44,6 +53,11 @@ class PharmacySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Pharmacy
         fields = '__all__'
+        extra_kwargs = {
+            'user': {
+                'write_only': True
+            }
+        }
 
     
 class SinglePharmacySerializer(serializers.ModelSerializer):

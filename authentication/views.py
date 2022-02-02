@@ -11,6 +11,7 @@ from core.permissions import IsRider
 from . import serializers
 from . import models
 
+
 class RegistrationView(generics.CreateAPIView):
     """
     Register user with full name, phone number, password, and email
@@ -38,7 +39,7 @@ class FetchUserView(generics.GenericAPIView):
 
 class UploadPharmacyLincenseView(generics.CreateAPIView):
     """Upload Pharmacy License"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     queryset = models.PharmacyLicense.objects.all()
     serializer_class = serializers.PharmacyLicenseSerializer
 

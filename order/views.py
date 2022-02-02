@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from core.permissions import IsRider
+from core.utils.constants import PHARMACIST, RIDER
+from core.utils.helpers import raise_validation_error
 
 from . import models, serializers
 
@@ -98,10 +100,18 @@ class FetchEarningsView(generics.GenericAPIView):
 
     permission_classes = [IsAuthenticated]
     queryset = QuerySet()
-    serializer_class = serializers.OrderEarningsSerializer
+    serializer_class = serializers.PharmacyEarningsSerializer
 
     def get(self, request, *args, **kwargs):
-        serializer = serializers.OrderEarningsSerializer(request.user.earnings, many=True)
+        queryset = super().get_queryset()
+        if request.user.user_type == RIDER:
+            queryset = request.rider_earnings
+            serializer = serializers.RiderEarningsSerializer(queryset, many=True)
+        elif request.user.user_type == PHARMACIST:
+            queryset = request.user.pharmacist_profile.pharmacy.pharmacy_earnings
+            serializer = serializers.PharmacyEarningsSerializer(queryset, many=True)
+        else:
+            raise_validation_error({'detail': 'Your user type does not have earnings'})
         return Response(serializer.data)
 
 

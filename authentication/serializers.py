@@ -68,3 +68,10 @@ class RiderLocationSerializer(serializers.Serializer):
         instance.long = long
         instance.save()
         return instance
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.User
+        fields = ['id', 'full_name']

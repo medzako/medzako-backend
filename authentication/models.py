@@ -162,18 +162,18 @@ class PharmacistProfile(AbstractBaseModel):
         on_delete=models.CASCADE, 
         related_name='pharmacist_profile'
         )
-    pharmacy = models.OneToOneField(
+    pharmacy = models.ForeignKey(
         'medication.Pharmacy',
         on_delete=models.CASCADE,
-        related_name='user_profile',
+        related_name='user_profiles',
         null=True
     )
     is_approved = models.BooleanField(default=False)
 
 
 class PharmacyLicense(AbstractBaseModel):
-    pharmacist_profile = models.ForeignKey(
-        'PharmacistProfile',
+    pharmacy = models.ForeignKey(
+        'medication.Pharmacy',
         on_delete=models.CASCADE, 
         related_name='licenses'
     )
