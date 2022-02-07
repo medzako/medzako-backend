@@ -53,6 +53,7 @@ class Medication(AbstractBaseModel):
     image = CloudinaryField('image')
     scientific_name = models.CharField(max_length=50, null=True)
     units_moved = models.IntegerField(default=0)
+    measurement = models.CharField(max_length=30, null=True)
 
     def __str__(self):
         return self.name
