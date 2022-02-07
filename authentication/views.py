@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from rest_framework_simplejwt.views import TokenViewBase
 
-from core.permissions import IsRider
+from core.permissions import IsCurrentUser, IsRider
 
 from . import serializers
 from . import models
@@ -62,3 +62,10 @@ class CurrentRiderLocationView(generics.GenericAPIView):
         instance = serializer.save()
         data = self.get_serializer(instance=instance).data
         return Response(data=data)
+
+
+class UpdateUser(generics.UpdateAPIView):
+    """Update user"""
+    permission_classes = [IsAuthenticated, IsCurrentUser]
+    queryset = models.User.objects.all()
+    serializer_class = serializers.UpdateUserSerializer

@@ -49,6 +49,12 @@ class Order(AbstractBaseModel):
         null=True
     )
     action_reason = models.TextField(null=True)
+    rider = models.ForeignKey(
+        'authentication.User',
+        on_delete=models.SET_NULL,
+        related_name='rider_orders',
+        null=True
+    )
 
     def __str__(self):
         return f'{self.customer.full_name} Order: {self.pk}'

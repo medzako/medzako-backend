@@ -8,7 +8,7 @@ from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Value
-from core.utils.helpers import add_distance_to_pharmacy, get_coordinate_distance, raise_validation_error
+from core.utils.helpers import add_distance_to_pharmacy, raise_validation_error
 from . import models, serializers
 from core.permissions import IsAdminOrReadOnly, IsPharmacist
 
@@ -87,7 +87,7 @@ class CreatePharmacyView(generics.CreateAPIView):
     serializer_class = serializers.PharmacySerializer
 
 
-class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateDestroyAPIView):
+class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateAPIView):
     """Retrieve and update Pharmacy""" 
 
     permission_classes = [IsAdminOrReadOnly]

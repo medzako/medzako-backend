@@ -12,7 +12,7 @@ from django.db.models.fields import CharField
 
 from rest_framework.exceptions import ValidationError
 from core.utils.constants import CUSTOMER, PHARMACIST, RIDER, USER_TYPES
-from core.utils.validators import validate_phone_number, validate_required_arguments
+from core.utils.validators import validate_password, validate_phone_number, validate_required_arguments
 
 
 from core.models import AbstractBaseModel
@@ -119,6 +119,7 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     d_o_b = models.DateField(null=True)
     user_type = models.CharField(choices=USER_TYPES, max_length=30, default='customer')
+    password = models.CharField(max_length=128, validators=[validate_password])
    
     def __str__(self):
         return f'{self.full_name}'

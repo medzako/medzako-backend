@@ -19,6 +19,20 @@ class ItemsSerializer(serializers.ModelSerializer):
         }
 
 
+class LocationSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['customer'] = self.context['request'].user
+        return super().create(validated_data)
+
+    class Meta:
+        model = models.Location
+        fields = '__all__'
+        extra_kwargs = {
+            'customer': {'read_only': True}
+        }
+        
+
 class FetchItemsSerializer(serializers.ModelSerializer):
     medication = MedicationSerializer()
     
@@ -29,6 +43,9 @@ class FetchItemsSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = serializers.ListField(child=ItemsSerializer(), allow_empty=False)
+    rider = UserSerializer()
+    customer = UserSerializer()
+    location = LocationSerializer()
 
     def create(self, validated_data):
         items = validated_data.pop('items')
@@ -148,20 +165,6 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Payment
         fields = '__all__'
-
-
-class LocationSerializer(serializers.ModelSerializer):
-
-    def create(self, validated_data):
-        validated_data['customer'] = self.context['request'].user
-        return super().create(validated_data)
-
-    class Meta:
-        model = models.Location
-        fields = '__all__'
-        extra_kwargs = {
-            'customer': {'read_only': True}
-        }
 
 
 class RetrieveOrderSerializer(serializers.ModelSerializer):
