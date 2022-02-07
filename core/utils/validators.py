@@ -59,5 +59,5 @@ def validate_password(password):
     pattern = re.compile(reg)
     match = re.search(pattern, password)
     if not match:
-        raise_validation_error('Password must have a captal letter, a small letter, and a length of 8 an more characters.')
+        raise_validation_error('Password must have a captal letter, a small letter, and a length of 8 or more characters.')
     return True

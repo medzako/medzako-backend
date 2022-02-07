@@ -65,7 +65,18 @@ class CurrentRiderLocationView(generics.GenericAPIView):
 
 
 class UpdateUser(generics.UpdateAPIView):
-    """Update user"""
+    """Update user that uses url params to get user"""
     permission_classes = [IsAuthenticated, IsCurrentUser]
     queryset = models.User.objects.all()
     serializer_class = serializers.UpdateUserSerializer
+
+
+class UpdateUserNoId(generics.UpdateAPIView):
+    """Update user that picks user from request"""
+    permission_classes = [IsAuthenticated]
+    queryset = models.User.objects.all()
+    serializer_class = serializers.UpdateUserSerializer
+
+
+    def get_object(self):
+        return self.request.user

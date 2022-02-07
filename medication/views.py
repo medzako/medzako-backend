@@ -198,3 +198,14 @@ class MedicationStock(generics.GenericAPIView):
         instance = serializer.save()
         data = self.get_serializer(instance=instance).data
         return Response(data=data)
+
+
+class UpdateharmacyView(generics.UpdateAPIView):
+    """Update Pharmacy with No Id. This enpoint picks the pharmacy from the request""" 
+
+    permission_classes = [IsPharmacist]
+    queryset = models.Pharmacy.objects.all()
+    serializer_class = serializers.SinglePharmacySerializer
+
+    def get_object(self):
+        return self.request.user.pharmacist_profile.pharmacy

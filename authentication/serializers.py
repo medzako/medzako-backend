@@ -6,10 +6,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from core.utils.constants import USER_TYPES
 
 from . import models
+from core.utils.validators import validate_password 
 
 class RegistrationSerializer(serializers.ModelSerializer):
 
     user_type = serializers.ChoiceField(choices=USER_TYPES)
+    password = serializers.CharField(max_length=128, validators=[validate_password], write_only=True)
 
     def create(self, validated_data):
         try:
@@ -36,7 +38,8 @@ class ReturnUserInformationLoginSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['name'] = user.full_name
+        token['first_name'] = user.first_name
+        token['second_name'] = user.second_name
         token['is_admin'] = user.is_admin
         token['is_superuser'] = user.is_superuser
         return token
@@ -74,16 +77,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ['id', 'full_name']
+        fields = ['id', 'first_name', 'second_name']
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(max_length=128, validators=[validate_password], write_only=True)
 
     def update(self, instance, validated_data):
 
         password = validated_data.get('password')
-        validated_data.pop('password')
+        
         if password:
+            validated_data.pop('password')
             instance.set_password(password)
 
         return super().update(instance, validated_data)
@@ -94,7 +99,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ['full_name', 'password', 'email', 'phone_no']
+        fields = ['first_name', 'second_name', 'password', 'email', 'phone_no']
         extra_kwargs = {
             'password': {'write_only':True},
             }

@@ -4,7 +4,7 @@ from core.utils.constants import PHARMACIST
 
 from core.utils.helpers import raise_validation_error
 from . import models
-import medication
+
 
 class MedicationSerializer(serializers.ModelSerializer):
 

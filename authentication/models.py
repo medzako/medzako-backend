@@ -12,7 +12,7 @@ from django.db.models.fields import CharField
 
 from rest_framework.exceptions import ValidationError
 from core.utils.constants import CUSTOMER, PHARMACIST, RIDER, USER_TYPES
-from core.utils.validators import validate_password, validate_phone_number, validate_required_arguments
+from core.utils.validators import validate_phone_number, validate_required_arguments
 
 
 from core.models import AbstractBaseModel
@@ -23,12 +23,13 @@ class UserManager(BaseUserManager):
     '''
 
     def create_user(
-        self, full_name=None, password=None, phone_no=None, email=None, user_type=None, **kwargs
+        self, first_name=None, second_name=None, password=None, phone_no=None, email=None, user_type=None, **kwargs
     ):
-        REQUIRED_ARGS = ('full_name', 'password', 'phone_no')
+        REQUIRED_ARGS = ('first_name', 'second_name', 'password', 'phone_no')
         validate_required_arguments(
             {
-                'full_name': full_name,
+                'first_name': first_name,
+                'second_name': second_name,
                 'password': password,
                 'phone_no': phone_no,
                 'email': email,
@@ -46,7 +47,8 @@ class UserManager(BaseUserManager):
         validate_phone_number(phone_no)
 
         user = self.model(
-            full_name=full_name,
+            first_name=first_name,
+            second_name=second_name,
             email=self.normalize_email(email),
             phone_no=phone_no,
             user_type=user_type,
@@ -70,12 +72,13 @@ class UserManager(BaseUserManager):
         return profile
 
     def create_superuser(
-        self, full_name=None, password=None, phone_no=None, email=None, **kwargs
+        self, first_name=None, second_name=None,password=None, phone_no=None, email=None, **kwargs
     ):
         REQUIRED_ARGS = ('full_name', 'password', 'phone_no', 'email')
         validate_required_arguments(
             {
-                'full_name': full_name,
+                'first_name': first_name,
+                'second_name': second_name,
                 'password': password,
                 'phone_no': phone_no,
                 'email': email
@@ -92,7 +95,8 @@ class UserManager(BaseUserManager):
         validate_phone_number(phone_no)
 
         user = self.model(
-            full_name=full_name,
+            first_name=first_name,
+            second_name=second_name,
             email=self.normalize_email(email),
             phone_no=phone_no,
             **kwargs
@@ -111,7 +115,6 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     '''
     Custom user model to be used throughout the application.
     '''
-    full_name = models.CharField(max_length=150)
     phone_no = models.CharField(unique=True, max_length=50, validators=[validate_phone_number])
     email = models.EmailField(unique=True)
     is_admin = models.BooleanField(default=False)
@@ -119,13 +122,14 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     d_o_b = models.DateField(null=True)
     user_type = models.CharField(choices=USER_TYPES, max_length=30, default='customer')
-    password = models.CharField(max_length=128, validators=[validate_password])
+    first_name = models.CharField(max_length=30, default='first')
+    second_name = models.CharField(max_length=30, default='second')
    
     def __str__(self):
-        return f'{self.full_name}'
+        return f'{self.email}'
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name', 'phone_no']
+    REQUIRED_FIELDS = ['first_name', 'second_name', 'phone_no']
 
     objects = UserManager()
 
