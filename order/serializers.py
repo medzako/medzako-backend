@@ -43,9 +43,6 @@ class FetchItemsSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = serializers.ListField(child=ItemsSerializer(), allow_empty=False)
-    rider = UserSerializer()
-    customer = UserSerializer()
-    location = LocationSerializer()
 
     def create(self, validated_data):
         items = validated_data.pop('items')
@@ -172,6 +169,8 @@ class RetrieveOrderSerializer(serializers.ModelSerializer):
     prescription = ImageUploadSerializer()
     location = LocationSerializer()
     pharmacy = MinimizedPharmacySerializer()
+    customer = UserSerializer()
+    rider = UserSerializer()
     
     class Meta:
         model = models.Order

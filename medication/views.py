@@ -200,7 +200,7 @@ class MedicationStock(generics.GenericAPIView):
         return Response(data=data)
 
 
-class UpdateharmacyView(generics.UpdateAPIView):
+class UpdateharmacyView(generics.RetrieveUpdateAPIView):
     """Update Pharmacy with No Id. This enpoint picks the pharmacy from the request""" 
 
     permission_classes = [IsPharmacist]
