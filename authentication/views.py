@@ -53,10 +53,13 @@ class FetchPharmacyLincensesView(generics.GenericAPIView):
     serializer_class = serializers.PharmacyLicenseSerializer
 
     def get(self, request, *args, **kwargs):
+        data = {}
         pharmacy_id = kwargs.get('pharmacy_id')
         pharmacy = get_object_or_404(Pharmacy, pk=pharmacy_id)
         serializer = self.get_serializer(pharmacy.licenses.all(), many=True)
-        return Response(serializer.data)
+        for license in serializer.data:
+            data[license['name']] = license
+        return Response(data)
         
         
 class UploadRiderLincenseView(generics.CreateAPIView):
