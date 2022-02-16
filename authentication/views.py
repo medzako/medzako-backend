@@ -1,4 +1,5 @@
 from django.db.models.query import QuerySet
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
 
 from core.permissions import IsCurrentUser, IsRider
+from medication.models import Pharmacy
 
 from . import serializers
 from . import models
@@ -44,6 +46,19 @@ class UploadPharmacyLincenseView(generics.CreateAPIView):
     serializer_class = serializers.PharmacyLicenseSerializer
 
 
+class FetchPharmacyLincensesView(generics.GenericAPIView):
+    """Upload Pharmacy License"""
+    permission_classes = []
+    queryset = models.PharmacyLicense.objects.all()
+    serializer_class = serializers.PharmacyLicenseSerializer
+
+    def get(self, request, *args, **kwargs):
+        pharmacy_id = kwargs.get('pharmacy_id')
+        pharmacy = get_object_or_404(Pharmacy, pk=pharmacy_id)
+        serializer = self.get_serializer(pharmacy.licenses.all(), many=True)
+        return Response(serializer.data)
+        
+        
 class UploadRiderLincenseView(generics.CreateAPIView):
     """Upload Rider License"""
     permission_classes = [IsAuthenticated]

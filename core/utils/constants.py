@@ -22,3 +22,11 @@ USER_TYPES = (('customer', 'customer'), ('rider', 'rider'), ('pharmacist', 'phar
 CUSTOMER = 'customer'
 PHARMACIST = 'pharmacist'
 RIDER = 'rider'
+
+BUSINESS_PERMIT = 'business_permit'
+ANNUAL_PRACTICE_LICENSE = 'annual_practice_license'
+PREMISES_REGISTRATION_LICENSE = 'premises_registration_license'
+
+PHARMACY_LICENSES = ((BUSINESS_PERMIT, BUSINESS_PERMIT),
+ (ANNUAL_PRACTICE_LICENSE, ANNUAL_PRACTICE_LICENSE), 
+ (PREMISES_REGISTRATION_LICENSE, PREMISES_REGISTRATION_LICENSE))

@@ -11,7 +11,7 @@ from cloudinary.models import CloudinaryField
 from django.db.models.fields import CharField
 
 from rest_framework.exceptions import ValidationError
-from core.utils.constants import CUSTOMER, PHARMACIST, RIDER, USER_TYPES
+from core.utils.constants import CUSTOMER, PHARMACIST, PHARMACY_LICENSES, RIDER, USER_TYPES
 from core.utils.validators import validate_phone_number, validate_required_arguments
 
 
@@ -183,7 +183,7 @@ class PharmacyLicense(AbstractBaseModel):
         related_name='licenses'
     )
     license_image = CloudinaryField('image')
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, choices=PHARMACY_LICENSES)
 
 
 class RiderLicense(AbstractBaseModel):
