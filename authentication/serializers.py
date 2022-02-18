@@ -53,6 +53,13 @@ class PharmacyLicenseSerializer(serializers.ModelSerializer):
 
 class RiderLicenseSerializer(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        name = validated_data.get('name')
+        licenses = models.RiderLicense.objects.filter(name=name)
+        for license in licenses:
+            license.delete()
+        return super().create(validated_data)
+
     class Meta:
         model = models.RiderLicense
         fields = '__all__'
