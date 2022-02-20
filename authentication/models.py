@@ -185,6 +185,9 @@ class PharmacyLicense(AbstractBaseModel):
     license_image = CloudinaryField('image')
     name = models.CharField(max_length=50, choices=PHARMACY_LICENSES)
 
+    def __str__(self) -> str:
+        return f'{self.name} Pharmacy id: {self.pharmacy.pk} Pharmacy name: {self.pharmacy.name}'
+
 
 class RiderLicense(AbstractBaseModel):
     customer_profile = models.ForeignKey(
