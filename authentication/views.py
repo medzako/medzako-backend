@@ -110,19 +110,6 @@ class UpdateUserNoId(generics.UpdateAPIView):
 
 def verify_user(request, token):
 
-    # try:
-    #     uid = force_text(urlsafe_base64_decode(uidb64))
-
-    #     user = models.User.objects.get(pk=uid)
-
-    # except Exception as e:
-    #     user = None
-  
-    # if user and generate_token.check_token(user, token):
-    #     user.is_email_verified = True
-    #     user.save()
-
-
     try:
             payload = decode(token, settings.SECRET_KEY, algorithms=["HS256"])
     except DecodeError:
