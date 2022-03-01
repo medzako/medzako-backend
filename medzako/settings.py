@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'order',
     'channels',
     'django_filters',
+    'djcelery_email'
 ]
 
 MIDDLEWARE = [
@@ -77,7 +78,7 @@ AUTH_USER_MODEL = "authentication.User"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -217,7 +218,15 @@ CHANNEL_LAYERS = {
     },
 }
 
+EMAIL_BACKEND = "djcelery_email.backends.CeleryEmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_USE_TLS = True
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+FRONTEND_LINK = os.getenv("FRONTEND_LINK")
+COMPANY_EMAIL = os.getenv("COMPANY_EMAIL")
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 django_heroku.settings(locals())
-

@@ -1,9 +1,13 @@
+from django.conf import settings
 from django.forms import ValidationError
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from jwt import decode, DecodeError
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from core.utils.constants import USER_TYPES
+from core.utils.helpers import raise_validation_error
 
 from . import models
 from core.utils.validators import validate_password 
@@ -63,6 +67,22 @@ class RiderLicenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RiderLicense
         fields = '__all__'
+
+
+class VerifyUserSerializer(serializers.Serializer):
+
+    token = serializers.CharField(required=True)
+
+    def is_valid(self, raise_exception=False):
+        super().is_valid(raise_exception)
+        token = self.validated_data["token"]
+        try:
+            payload = decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        except DecodeError:
+            raise_validation_error({"detail": "Invalid token"})
+        user = get_object_or_404(models.User, email=payload["email"])
+        user.is_verified = True
+        user.save()
 
 
 class RiderLocationSerializer(serializers.Serializer):
