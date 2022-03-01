@@ -8,7 +8,7 @@ from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Value
-from core.utils.helpers import add_distance_to_pharmacy, get_coordinate_distance, raise_validation_error
+from core.utils.helpers import add_distance_to_pharmacy, raise_validation_error
 from . import models, serializers
 from core.permissions import IsAdminOrReadOnly, IsPharmacist
 
@@ -81,13 +81,13 @@ class ListPharmacyView(generics.ListAPIView):
 
 
 class CreatePharmacyView(generics.CreateAPIView):
-    """Create pharmacy"""
-    permission_classes = [IsPharmacist]
+    """Create pharmacy. Includes a user input that should be the user id of the pharmacist you are registering"""
+    permission_classes = []
     queryset = models.Pharmacy.objects.all()
     serializer_class = serializers.PharmacySerializer
 
 
-class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateDestroyAPIView):
+class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateAPIView):
     """Retrieve and update Pharmacy""" 
 
     permission_classes = [IsAdminOrReadOnly]
@@ -198,3 +198,14 @@ class MedicationStock(generics.GenericAPIView):
         instance = serializer.save()
         data = self.get_serializer(instance=instance).data
         return Response(data=data)
+
+
+class UpdateharmacyView(generics.RetrieveUpdateAPIView):
+    """Update Pharmacy with No Id. This enpoint picks the pharmacy from the request""" 
+
+    permission_classes = [IsPharmacist]
+    queryset = models.Pharmacy.objects.all()
+    serializer_class = serializers.SinglePharmacySerializer
+
+    def get_object(self):
+        return self.request.user.pharmacist_profile.pharmacy

@@ -2,7 +2,7 @@ from django.db import models
 from cloudinary.models import CloudinaryField
 
 from core.models import AbstractBaseModel
-from core.utils.constants import PAYMENTS, STATUSES
+from core.utils.constants import PAYMENTS, RECEIVED, STATUSES
 
 
 class Order(AbstractBaseModel):
@@ -28,7 +28,7 @@ class Order(AbstractBaseModel):
     )
     status = models.CharField(
         choices=STATUSES,
-        default="Received",
+        default=RECEIVED,
         max_length=30
     )
     is_payment_complete = models.BooleanField(default=False)
@@ -46,6 +46,13 @@ class Order(AbstractBaseModel):
         'order.Location',
         on_delete=models.CASCADE,
         related_name='location_orders',
+        null=True
+    )
+    action_reason = models.TextField(null=True)
+    rider = models.ForeignKey(
+        'authentication.User',
+        on_delete=models.SET_NULL,
+        related_name='rider_orders',
         null=True
     )
 
@@ -110,20 +117,25 @@ class CurrentOrderLocation(AbstractBaseModel):
     lat = models.DecimalField(max_digits=45, decimal_places=40)
     long = models.DecimalField(max_digits=45, decimal_places=40)
 
-
-class RiderEarining(AbstractBaseModel):
-    order = models.ForeignKey(
+class OrderEarning(AbstractBaseModel):
+    order = models.OneToOneField(
         'order.Order',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='earning',
+        null=True
     )
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
-
-
-class PharmacyEarining(AbstractBaseModel):
-    order = models.ForeignKey(
-        'order.Order',
-        on_delete=models.CASCADE,
-        related_name='pharmacy_earning',
+    pharmacy = models.ForeignKey(
+        'medication.Pharmacy',
+        on_delete=models.SET_NULL,
+        related_name='pharmacy_earnings',
+        null=True
     )
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    rider = models.ForeignKey(
+        'authentication.User',
+        on_delete=models.SET_NULL,
+        related_name='rider_earnings',
+        null=True
+    )
+
+    rider_earning = models.DecimalField(max_digits=9, decimal_places=2)
+    pharmacy_earning = models.DecimalField(max_digits=9, decimal_places=2)

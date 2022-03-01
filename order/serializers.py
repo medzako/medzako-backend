@@ -1,4 +1,8 @@
 from rest_framework import serializers
+from django.db.utils import IntegrityError
+from authentication.serializers import UserSerializer
+
+from core.utils.constants import DELIVERED
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
@@ -14,6 +18,20 @@ class ItemsSerializer(serializers.ModelSerializer):
             'order': {'read_only':True},
         }
 
+
+class LocationSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['customer'] = self.context['request'].user
+        return super().create(validated_data)
+
+    class Meta:
+        model = models.Location
+        fields = '__all__'
+        extra_kwargs = {
+            'customer': {'read_only': True}
+        }
+        
 
 class FetchItemsSerializer(serializers.ModelSerializer):
     medication = MedicationSerializer()
@@ -54,20 +72,51 @@ class OrderSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = '__all__'
 
+
+class ImageUploadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Image
+        fields = '__all__'
+
+
 class FetchOrderSerializer(serializers.ModelSerializer):
 
     pharmacy = MinimizedPharmacySerializer()
+    prescription = ImageUploadSerializer()
+
     
     class Meta:
         model = models.Order
         fields = '__all__'
 
 
+class MinimizedOrderSerializer(serializers.ModelSerializer):
+
+    customer = UserSerializer()
+    
+    class Meta:
+        model = models.Order
+        fields = ['id', 'customer', 'total_price', 'status']
+
+
 class UpdateOrderSerializer(serializers.ModelSerializer):
+
+    def is_valid(self, raise_exception=False):
+        # if self.instance is not None and not self.instance.is_payment_complete:
+        #     raise_validation_error({'detail': 'Invalid request. Customer payment not complete'})
+
+        return super().is_valid(raise_exception)
 
     def save(self, **kwargs):
         instance =  super().save(**kwargs)
-        if instance.is_completed:
+        if instance.is_completed or instance.status == DELIVERED:
+            try:
+                models.OrderEarning.objects.create(order=instance, 
+                pharmacy=instance.pharmacy, 
+                pharmacy_earning=instance.total_price, rider_earning=50)
+            except IntegrityError:
+                raise_validation_error({'detail': 'Order completed already'})
             instance.pharmacy.completed_orders += 1
             instance.pharmacy.save()
             for item in instance.items.all():
@@ -77,7 +126,7 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Order
-        fields = ['is_completed', 'is_payment_complete']
+        fields = ['is_completed', 'status', 'action_reason']
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -115,34 +164,34 @@ class PaymentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class LocationSerializer(serializers.ModelSerializer):
-
-    def create(self, validated_data):
-        validated_data['customer'] = self.context['request'].user
-        return super().create(validated_data)
-
-    class Meta:
-        model = models.Location
-        fields = '__all__'
-        extra_kwargs = {
-            'customer': {'read_only': True}
-        }
-
-
-class ImageUploadSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Image
-        fields = '__all__'
-
-
 class RetrieveOrderSerializer(serializers.ModelSerializer):
     
     prescription = ImageUploadSerializer()
     location = LocationSerializer()
     pharmacy = MinimizedPharmacySerializer()
+    customer = UserSerializer()
+    rider = UserSerializer()
     
     class Meta:
         model = models.Order
         fields = '__all__'
+
+
+class RiderEarningsSerializer(serializers.ModelSerializer):
+
+    order = FetchOrderSerializer()
+
+    class Meta:
+        model = models.OrderEarning
+        fields = ['order', 'rider_earning']
+
+
+class PharmacyEarningsSerializer(serializers.ModelSerializer):
+
+    order = MinimizedOrderSerializer()
+
+    class Meta:
+        model = models.OrderEarning
+        fields = ['order', 'pharmacy_earning']
+
         

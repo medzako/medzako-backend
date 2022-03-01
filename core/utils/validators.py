@@ -1,3 +1,4 @@
+from unittest import result
 from core.utils.helpers import raise_validation_error
 from rest_framework.exceptions import ValidationError
 import re
@@ -51,3 +52,12 @@ def validate_required_arguments(kwargs, required_args):
         elif not kwargs.get(arg):  # arg must be truthy
             raise ValidationError({arg: "This field cannot be empty."})
     return kwargs
+
+
+def validate_password(password):
+    reg = "^(?=.*?[A-Z]).{8,}$"
+    pattern = re.compile(reg)
+    match = re.search(pattern, password)
+    if not match:
+        raise_validation_error('Password must have a captal letter, a small letter, and a length of 8 or more characters.')
+    return True

@@ -1,8 +1,8 @@
 from rest_framework.permissions import BasePermission
+from rest_framework import permissions
 
 from core.utils.constants import PHARMACIST, RIDER
 
-SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 
 class IsAdminOrReadOnly(BasePermission):
     """
@@ -10,11 +10,11 @@ class IsAdminOrReadOnly(BasePermission):
     """
 
     def has_permission(self, request, view):
-        if (request.method in SAFE_METHODS and
+        if (request.method in permissions.SAFE_METHODS and
             request.user and
             request.user.is_authenticated):
             return True
-        elif ( not (request.method in SAFE_METHODS) and request.user and request.user.is_admin):
+        elif ( not (request.method in permissions.SAFE_METHODS) and request.user and request.user.is_admin):
             return True
             
         return False
@@ -47,3 +47,9 @@ class IsRider(BasePermission):
             return True
             
         return False
+  
+  
+class IsCurrentUser(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, obj):
+        return obj == request.user

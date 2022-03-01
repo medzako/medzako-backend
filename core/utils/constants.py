@@ -9,9 +9,24 @@ MEDICATION_TYPE = (
     ('P', 'Prescription', ),
 )
 
-STATUSES = (('Received', 'Received'), ('Packaged', 'Packaged'), ('On Transit', 'On Transit'), ('Delivered', 'Delivered'), ('Cancelled', 'Cancelled'))
+RECEIVED = 'received'
+ACCEPTED = 'accepted'
+DISPATCHED = 'dispatched'
+DELIVERED = 'delivered'
+CANCELED = 'canceled'
+REJECTED = 'rejected'
+
+STATUSES = ((RECEIVED, RECEIVED), (ACCEPTED, ACCEPTED), (DISPATCHED, DISPATCHED), (DELIVERED, DELIVERED), (CANCELED, CANCELED), (REJECTED, REJECTED),)
 
 USER_TYPES = (('customer', 'customer'), ('rider', 'rider'), ('pharmacist', 'pharmacist'))
 CUSTOMER = 'customer'
 PHARMACIST = 'pharmacist'
 RIDER = 'rider'
+
+BUSINESS_PERMIT = 'business_permit'
+ANNUAL_PRACTICE_LICENSE = 'annual_practice_license'
+PREMISES_REGISTRATION_LICENSE = 'premises_registration_license'
+
+PHARMACY_LICENSES = ((BUSINESS_PERMIT, BUSINESS_PERMIT),
+ (ANNUAL_PRACTICE_LICENSE, ANNUAL_PRACTICE_LICENSE), 
+ (PREMISES_REGISTRATION_LICENSE, PREMISES_REGISTRATION_LICENSE))
