@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -8,12 +10,18 @@ from django.contrib.auth.models import (
 from django.contrib.auth import password_validation
 
 from cloudinary.models import CloudinaryField
-from django.db.models.fields import CharField
+from django.conf import settings
+
+from django.dispatch import receiver
+from django.core.mail import send_mail
+from django.db.models.signals import post_save
+from jwt import encode
+
+
 
 from rest_framework.exceptions import ValidationError
 from core.utils.constants import CUSTOMER, PHARMACIST, PHARMACY_LICENSES, RIDER, USER_TYPES
 from core.utils.validators import validate_phone_number, validate_required_arguments
-
 
 from core.models import AbstractBaseModel
 
@@ -119,6 +127,7 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_email_verified = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     d_o_b = models.DateField(null=True)
     user_type = models.CharField(choices=USER_TYPES, max_length=30, default='customer')
@@ -206,3 +215,21 @@ class CurrentRiderLocation(AbstractBaseModel):
     )
     lat = models.DecimalField(max_digits=45, decimal_places=40, null=True)
     long = models.DecimalField(max_digits=45, decimal_places=40, null=True)
+
+
+@receiver(post_save, sender=User, dispatch_uid="create_user_varification_token")
+def send_activation_email(sender, instance, **kwargs):
+    if instance.is_superuser:
+        return
+
+    subject = "Medzako email verification link"
+    payload = { 
+            "email": instance.email,
+            "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+             }
+    token = encode(payload, settings.SECRET_KEY)
+    print(token)
+    message = settings.FRONTEND_LINK + 'verify/' + token
+    email_from = settings.COMPANY_EMAIL
+    receipient_list = [instance.email]
+    send_mail( subject, message, email_from, receipient_list )

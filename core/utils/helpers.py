@@ -3,6 +3,9 @@ import random
 import string
 from decimal import Decimal
 from rest_framework.exceptions import ValidationError
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+import six
 from medzako.celery import app
 
 def raise_validation_error(message=None):
@@ -31,3 +34,12 @@ def get_rider(destination, rider_locations, maximum_radius):
     riders_distances.sort(key=lambda x: x[1])
     if riders_distances[0][1] < maximum_radius:
         return riders_distances[0]
+
+
+class TokenGenerator(PasswordResetTokenGenerator):
+
+    def _make_hash_value(self, user, timestamp):
+        return (six.text_type(user.pk)+six.text_type(timestamp)+six.text_type(user.is_email_verified))
+
+
+generate_token = TokenGenerator()
