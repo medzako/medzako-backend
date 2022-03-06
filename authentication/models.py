@@ -20,7 +20,7 @@ from jwt import encode
 
 
 from rest_framework.exceptions import ValidationError
-from core.utils.constants import CUSTOMER, PHARMACIST, PHARMACY_LICENSES, RIDER, USER_TYPES
+from core.utils.constants import CUSTOMER, PHARMACIST, PHARMACY_LICENSES, RIDER, RIDER_LICENSES, USER_TYPES
 from core.utils.validators import validate_phone_number, validate_required_arguments
 
 from core.models import AbstractBaseModel
@@ -199,12 +199,24 @@ class PharmacyLicense(AbstractBaseModel):
 
 
 class RiderLicense(AbstractBaseModel):
-    customer_profile = models.ForeignKey(
+    rider_profile = models.ForeignKey(
         'RiderProfile',
         on_delete=models.CASCADE, 
-        related_name='licenses'
+        related_name='rider_licenses',
+        null=True
     )
     license_image = CloudinaryField('image')
+    name = models.CharField(max_length=50, choices=RIDER_LICENSES)
+
+
+class RiderProfileImage(AbstractBaseModel):
+    rider_profile = models.OneToOneField(
+        'RiderProfile',
+        on_delete=models.CASCADE, 
+        related_name='profile_pic',
+        null=True
+    )
+    profile_picture = CloudinaryField('image')
 
 
 class CurrentRiderLocation(AbstractBaseModel):

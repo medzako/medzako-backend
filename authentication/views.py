@@ -47,6 +47,21 @@ class FetchUserView(generics.GenericAPIView):
         return Response(serializer.data)
 
 
+class FetchRiderProfileView(generics.GenericAPIView):
+    """Fetch rider profile"""
+
+    permission_classes = [IsRider]
+    queryset = QuerySet()
+    serializer_class = serializers.RegistrationSerializer
+
+    def get(self, request, *args, **kwargs):
+        serializer = serializers.RiderProfileSerializer(instance=request.user.rider_profile)
+        profile_pic_serializer = serializers.RiderProfileImageSerializer(instance=request.user.rider_profile.profile_pic)
+        data = serializer.data
+        data['profile_pic'] = profile_pic_serializer.data
+        return Response(data)
+
+
 class UploadPharmacyLincenseView(generics.CreateAPIView):
     """Upload Pharmacy License"""
     permission_classes = []
@@ -68,13 +83,34 @@ class FetchPharmacyLincensesView(generics.GenericAPIView):
         for license in serializer.data:
             data[license['name']] = license
         return Response(data)
+
+
+class FetchRiderLincensesView(generics.GenericAPIView):
+    """Upload Rider License"""
+    permission_classes = [IsRider]
+    queryset = models.RiderLicense.objects.all()
+    serializer_class = serializers.RiderLicenseSerializer
+
+    def get(self, request, *args, **kwargs):
+        data = {}
+        serializer = self.get_serializer(self.request.user.rider_profile.rider_licenses.all(), many=True)
+        for license in serializer.data:
+            data[license['name']] = license
+        return Response(data)
         
         
 class UploadRiderLincenseView(generics.CreateAPIView):
     """Upload Rider License"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsRider]
     queryset = models.RiderLicense.objects.all()
     serializer_class = serializers.RiderLicenseSerializer
+
+
+class UploadProfilePicView(generics.CreateAPIView):
+    """Upload Rider profile"""
+    permission_classes = [IsRider]
+    queryset = models.RiderProfileImage.objects.all()
+    serializer_class = serializers.RiderProfileImageSerializer
 
 
 class CurrentRiderLocationView(generics.GenericAPIView):

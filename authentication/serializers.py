@@ -10,7 +10,8 @@ from core.utils.constants import USER_TYPES
 from core.utils.helpers import raise_validation_error
 
 from . import models
-from core.utils.validators import validate_password 
+from core.utils.validators import validate_password
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
 
@@ -50,6 +51,13 @@ class ReturnUserInformationLoginSerializer(TokenObtainPairSerializer):
 
 class PharmacyLicenseSerializer(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        name = validated_data.get('name')
+        licenses = models.PharmacyLicense.objects.filter(name=name)
+        for license in licenses:
+            license.delete()
+        return super().create(validated_data)
+        
     class Meta:
         model = models.PharmacyLicense
         fields = '__all__'
@@ -62,10 +70,38 @@ class RiderLicenseSerializer(serializers.ModelSerializer):
         licenses = models.RiderLicense.objects.filter(name=name)
         for license in licenses:
             license.delete()
+
+        validated_data['rider_profile'] = self.context['request'].user.rider_profile
         return super().create(validated_data)
 
     class Meta:
         model = models.RiderLicense
+        fields = '__all__'
+
+
+
+class RiderProfileImageSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        profile = self.context['request'].user.rider_profile
+
+        try:
+            profile.profile_pic.delete()
+        except models.RiderProfile.profile_pic.RelatedObjectDoesNotExist:
+            pass
+
+        validated_data['rider_profile'] = self.context['request'].user.rider_profile
+        return super().create(validated_data)
+
+    class Meta:
+        model = models.RiderProfileImage
+        fields = '__all__'
+
+
+class RiderProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.RiderProfile
         fields = '__all__'
 
 
