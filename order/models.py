@@ -57,7 +57,7 @@ class Order(AbstractBaseModel):
     )
 
     def __str__(self):
-        return f'{self.customer.full_name} Order: {self.pk}'
+        return f'{self.customer.first_name} Order: {self.pk}'
 
 
 class OrderItem(AbstractBaseModel):
