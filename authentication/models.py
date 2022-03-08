@@ -82,7 +82,7 @@ class UserManager(BaseUserManager):
     def create_superuser(
         self, first_name=None, second_name=None,password=None, phone_no=None, email=None, **kwargs
     ):
-        REQUIRED_ARGS = ('full_name', 'password', 'phone_no', 'email')
+        REQUIRED_ARGS = ('password', 'phone_no', 'email')
         validate_required_arguments(
             {
                 'first_name': first_name,
