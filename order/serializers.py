@@ -91,6 +91,13 @@ class FetchOrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SocketOrderSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Order
+        fields = '__all__'
+
+
 class MinimizedOrderSerializer(serializers.ModelSerializer):
 
     customer = UserSerializer()

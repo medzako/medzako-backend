@@ -139,3 +139,19 @@ class OrderEarning(AbstractBaseModel):
 
     rider_earning = models.DecimalField(max_digits=9, decimal_places=2)
     pharmacy_earning = models.DecimalField(max_digits=9, decimal_places=2)
+
+
+class RiderHistory(AbstractBaseModel):
+    order = models.ForeignKey(
+        'order.Order',
+        on_delete=models.SET_NULL,
+        related_name='riders_history',
+        null=True
+    )
+    rider = models.ForeignKey(
+        'authentication.User',
+        on_delete=models.SET_NULL,
+        related_name='riders_history',
+        null=True
+    )
+    is_accepted = models.BooleanField(default=False)

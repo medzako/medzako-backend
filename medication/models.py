@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.conf import settings
 from django.db import models
 from cloudinary.models import CloudinaryField
 from core.utils.constants import MEDICATION_TYPE
@@ -16,6 +17,7 @@ class Pharmacy(AbstractBaseModel):
     image = CloudinaryField('image')
     rating = models.DecimalField(default=0, decimal_places=1, max_digits=1)
     completed_orders = models.IntegerField(default=0)
+    socket_security_code = models.CharField(default="ferf4035-grt-bjd-tGFHYHtm545-0-g-mvsvfgbgxxbgBNFVC", max_length=60)
 
     @property
     def get_rating(self):

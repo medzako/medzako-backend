@@ -154,6 +154,7 @@ class RiderProfile(AbstractBaseModel):
         null=True)
     is_approved = models.BooleanField(default=False)
     is_online = models.BooleanField(default=False)
+    socket_security_code = models.CharField(default="ferf4035-grt-bjd-tGFHYHtm545-0-g-mvsvfgbgxxbgBNFVC", max_length=60)
 
 
 class CustomerProfile(AbstractBaseModel):
@@ -169,7 +170,7 @@ class CustomerProfile(AbstractBaseModel):
 
 class PharmacistProfile(AbstractBaseModel):
     """
-    Rider information
+    Pharmacist information
     """
     user = models.OneToOneField(
         'User',
