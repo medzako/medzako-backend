@@ -2,11 +2,11 @@ from rest_framework import serializers
 from django.db.utils import IntegrityError
 from authentication.serializers import UserSerializer
 
-from core.utils.constants import DELIVERED
+from core.utils.constants import ACCEPTED, DELIVERED
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
-from core.utils.helpers import generate_random_string, raise_validation_error
+from core.utils.helpers import generate_random_string, get_rider, raise_validation_error
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -129,7 +129,16 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
             for item in instance.items.all():
                 item.medication.units_moved += item.quantity
                 item.medication.save()
+        if instance.status == ACCEPTED:
+            pharmacy=instance.pharmacy
+            rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
+            if rider:
+                instance.rider = rider
+                instance.save
+                models.RiderHistory.objects.create(order=instance, rider=rider)
+
         return instance
+    
     
     class Meta:
         model = models.Order

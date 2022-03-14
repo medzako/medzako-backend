@@ -32,6 +32,7 @@ class Order(AbstractBaseModel):
         max_length=30
     )
     is_payment_complete = models.BooleanField(default=False)
+    is_rider_found = models.BooleanField(default=False)
 
     prescription = models.OneToOneField(
         'order.Image',

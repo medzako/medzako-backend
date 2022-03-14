@@ -1,3 +1,4 @@
+from django.conf import settings
 from geopy.distance import distance
 import random
 import string
@@ -8,11 +9,12 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import six
 from medzako.celery import app
 
+
 def raise_validation_error(message=None):
     raise ValidationError(message)
 
-
 def get_coordinate_distance(cood1, cood2):
+    """Return coordinate to cooardinate distance in KM"""
     return distance(cood1, cood2).km
 
 
@@ -29,7 +31,11 @@ def generate_random_string(length):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k = length))
 
 app.task()
-def get_rider(destination, rider_locations, maximum_radius):
+def get_rider(destination):
+    from authentication.models import CurrentRiderLocation
+
+    maximum_radius = settings.MAXIMUM_RADIUS
+    rider_locations = CurrentRiderLocation.objects.all()
     riders_distances = [(rider_location.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
     riders_distances.sort(key=lambda x: x[1])
     if riders_distances[0][1] < maximum_radius:
@@ -37,7 +43,6 @@ def get_rider(destination, rider_locations, maximum_radius):
 
 
 class TokenGenerator(PasswordResetTokenGenerator):
-
     def _make_hash_value(self, user, timestamp):
         return (six.text_type(user.pk)+six.text_type(timestamp)+six.text_type(user.is_email_verified))
 
