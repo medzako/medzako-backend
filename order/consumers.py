@@ -154,7 +154,7 @@ class ClientOrderTrackingConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.order_id = self.scope['url_route']['kwargs']['order_id']
-        self.order_name = f'Order_{self.order_id}_fetch'
+        self.order_name = f'Order_{self.order_id}'
         # if self.scope['user'] == AnonymousUser():
         #     raise DenyConnection("Invalid User")
         await self.channel_layer.group_add(
