@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from channels.db import database_sync_to_async
 from authentication.models import User
 
-from core.utils.constants import RECEIVED
+from core.utils.constants import RECEIVED, RIDER
 from order.serializers import FetchOrderSerializer, OrderSerializer, SocketOrderSerializer
 
 # Local imports.
@@ -176,7 +176,7 @@ class ClientOrderTrackingConsumer(AsyncWebsocketConsumer):
                 self.order_name,
                 {
                     'type': 'fetch_order_location',
-                    'orer_id': self.order_id,
+                    'order_id': self.order_id,
                     'tracking_id': tracking_id,
                 }
             )
@@ -298,6 +298,8 @@ class RiderReceivedOrders(AsyncWebsocketConsumer):
 
         try:
             self.rider = await fetch_rider(self.rider_id)
+            if self.rider.user_type != RIDER:
+               raise DenyConnection("Invalid User") 
         except ObjectDoesNotExist:
             raise DenyConnection("Invalid Rider Id")
         await self.accept()
