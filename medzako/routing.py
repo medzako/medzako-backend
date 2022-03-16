@@ -1,6 +1,11 @@
-from channels.routing import ProtocolTypeRouter, URLRouter
-from order.routing import websockets
+from channels.routing import ProtocolTypeRouter
+from authentication.sockets_middleware import  TokenAuthMiddleware
+from channels.security.websocket import AllowedHostsOriginValidator
+
+from order.routing import websockets 
 
 application = ProtocolTypeRouter({
-    "websocket": websockets,
+    "websocket": AllowedHostsOriginValidator(
+        TokenAuthMiddleware(websockets),
+    )
 })

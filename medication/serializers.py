@@ -59,6 +59,14 @@ class PharmacySerializer(serializers.ModelSerializer):
             }
         }
 
+
+class FetchPharmacySerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = models.Pharmacy
+        fields = '__all__'
+
     
 class SinglePharmacySerializer(serializers.ModelSerializer):
 

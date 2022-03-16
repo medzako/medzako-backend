@@ -1,6 +1,6 @@
 from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
-from .consumers import RiderOrderTrackingConsumer, PharmacyReceivedOrders, RiderReceivedOrders
+from .consumers import RiderOrderTrackingConsumer, PharmacyReceivedOrders, Notifications
 
 
 websockets = URLRouter([
@@ -13,7 +13,7 @@ websockets = URLRouter([
         name="fetch-pharmacy-received_orders",
     ),
     path(
-        "ws/fetch-rider-received-orders/<int:rider_id>", RiderReceivedOrders.as_asgi(),
-        name="fetch-rider-received_orders",    
+        "ws/notifications", Notifications.as_asgi(),
+        name="fetch-rider-received_orders",
     ),
 ])

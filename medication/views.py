@@ -45,7 +45,7 @@ class ListPharmacyView(generics.ListAPIView):
 
     permission_classes = [IsAuthenticated]
     queryset = models.Pharmacy.objects.all()
-    serializer_class = serializers.PharmacySerializer
+    serializer_class = serializers.FetchPharmacySerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()
