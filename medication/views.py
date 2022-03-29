@@ -4,11 +4,9 @@ from geopy import distance
 
 from rest_framework import filters
 from rest_framework import generics
-from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Value
-from core.utils.helpers import add_distance_to_pharmacy, raise_validation_error
+from core.utils.helpers import add_distance_to_pharmacy, parseStockData, raise_validation_error
 from . import models, serializers
 from core.permissions import IsAdminOrReadOnly, IsPharmacist
 
@@ -73,7 +71,7 @@ class ListPharmacyView(generics.ListAPIView):
             try:
                 lat = Decimal(lat)
                 long = Decimal(long)
-            except ValueError:
+            except (ValueError, TypeError):
                 raise_validation_error({'detail': 'Ensure the latitude and the longitude are specified decimals'})
             data = [add_distance_to_pharmacy(item, (lat, long)) for item in data]
             data = sorted(data, key=lambda x: x['distance'], reverse=False)
@@ -98,8 +96,8 @@ class RetrieveUpdateDestroyPharmacyView(generics.RetrieveUpdateAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        stock_serializer = serializers.StockSerializer(instance.available_stock, many=True)
-        data['stock'] = stock_serializer.data
+        stock_serializer = serializers.GetStockSerializer(instance.available_stock.all(), many=True)
+        data['categories'] = parseStockData(stock_serializer.data)
         return Response(data=data)
 
 
