@@ -75,7 +75,7 @@ service-identity==21.1.0
 six==1.14.0
 sqlparse==0.4.1
 Twisted==21.7.0
-txaio==21.2.1
+txaio==21.2.
 typing-extensions==4.0.0
 uritemplate==3.0.1
 urllib3==1.25.8
@@ -88,3 +88,5 @@ whitenoise==5.3.0
 zope.interface==5.4.0
 django-celery-email==3.0.0
 channels==3.0.4
+fcm-django==1.0.8 
+firebase-admin==5.2.0
