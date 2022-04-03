@@ -6,10 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
-from core.permissions import IsRider
+
+from core.permissions import IsRider, IsRiderOwnerObject
 from core.utils.constants import PHARMACIST, RIDER
-from core.utils.helpers import raise_validation_error
+from core.utils.helpers import raise_validation_error, sendFCMMessage
 
 from . import models, serializers
 
@@ -113,6 +115,12 @@ class FetchEarningsView(generics.GenericAPIView):
         else:
             raise_validation_error({'detail': 'Your user type does not have earnings'})
         return Response(serializer.data)
+
+
+class UpdateRiderHistory(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsRider, IsRiderOwnerObject]
+    queryset = QuerySet()
+    serializer_class = serializers.RiderHistorySerializer
 
 
 @method_decorator(csrf_exempt, name='dispatch')

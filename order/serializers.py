@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from django.db.utils import IntegrityError
+from authentication.models import User
 from authentication.serializers import UserSerializer
 
 from core.utils.constants import ACCEPTED, DELIVERED
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
-from core.utils.helpers import generate_random_string, get_rider, raise_validation_error
+from core.utils.helpers import generate_random_string, get_rider, raise_validation_error, send_order_pharmacy_notifications, send_order_rider_notifications, sendFCMMessage, sendFCMNotification
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -63,6 +64,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'long': instance.pharmacy.location_long,
             'tracking_id': tracking_id
         }
+
         
         models.CurrentOrderLocation.objects.create(**tracking_info)
 
@@ -135,7 +137,13 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
             if rider:
                 instance.rider = rider
                 instance.save
-                models.RiderHistory.objects.create(order=instance, rider=rider)
+                rider_history_object = models.RiderHistory.objects.create(order=instance, rider=rider)
+
+                send_order_rider_notifications(rider, instance, rider_history_object.id)
+
+            else:
+                send_order_pharmacy_notifications(instance)
+            
 
         return instance
     
@@ -210,4 +218,24 @@ class PharmacyEarningsSerializer(serializers.ModelSerializer):
         model = models.OrderEarning
         fields = ['order', 'pharmacy_earning']
 
+
+class RiderHistorySerializer(serializers.ModelSerializer):
+
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
         
+        if instance.is_accepted:
+            send_order_pharmacy_notifications(instance.order)
+        else:
+            rider_history_object = models.RiderHistory.objects.create(order=instance, rider=rider)
+            pharmacy=instance.order.pharmacy
+            rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
+
+            send_order_rider_notifications(rider, instance.order, rider_history_object.id)
+
+        return instance
+
+    class Meta:
+        model = models.RiderHistory
+        fields = ['is_accepted']

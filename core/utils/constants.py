@@ -31,9 +31,9 @@ PHARMACY_LICENSES = ((BUSINESS_PERMIT, BUSINESS_PERMIT),
  (ANNUAL_PRACTICE_LICENSE, ANNUAL_PRACTICE_LICENSE), 
  (PREMISES_REGISTRATION_LICENSE, PREMISES_REGISTRATION_LICENSE))
 
-DRIVING_LICENSE = "driving_license"
-ID_FRONT = "id_front"
-ID_BACK = "id_back"
+DRIVING_LICENSE = 'driving_license'
+ID_FRONT = 'id_front'
+ID_BACK = 'id_back'
 
 RIDER_LICENSES = (
     (DRIVING_LICENSE, DRIVING_LICENSE),
@@ -41,3 +41,10 @@ RIDER_LICENSES = (
     (ID_BACK, ID_BACK)
 )
 
+ORDER_CREATED = 'order_created'
+
+FCM_DATA = {
+    'type': '',
+    'data': {},
+    'message': ''
+}

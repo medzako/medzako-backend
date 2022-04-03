@@ -88,7 +88,7 @@ class RatesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class StockSerializer(serializers.ModelSerializer):
+class GetStockSerializer(serializers.ModelSerializer):
     medication = SingleMedicationSerializer()
 
     class Meta:

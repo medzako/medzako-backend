@@ -20,6 +20,7 @@ import django_heroku
 from django.conf import settings
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
+from firebase_admin import initialize_app
 
 load_dotenv()
 
@@ -57,7 +58,8 @@ INSTALLED_APPS = [
     'order',
     'channels',
     'django_filters',
-    'djcelery_email'
+    'djcelery_email',
+    'fcm_django'
 ]
 
 MIDDLEWARE = [
@@ -229,5 +231,19 @@ COMPANY_EMAIL = os.getenv("COMPANY_EMAIL")
 MAXIMUM_RADIUS = int(os.getenv("MAXIMUM_RADIUS", "5"))
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+FIREBASE_APP = initialize_app()
+
+FCM_DJANGO_SETTINGS = {
+     # default: _('FCM Django')
+    "APP_VERBOSE_NAME": "FCM Django",
+     # true if you want to have only one active device per registered user at a time
+     # default: False
+    "ONE_DEVICE_PER_USER": False,
+     # devices to which notifications cannot be sent,
+     # are deleted upon receiving error response from FCM
+     # default: False
+    "DELETE_INACTIVE_DEVICES": False,
+}
 
 django_heroku.settings(locals())

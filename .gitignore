@@ -7,3 +7,4 @@ __pycache__
 dump.rdb
 celerybeat-schedule
 celerybeat.pid
+firebase_credentials.json

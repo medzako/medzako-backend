@@ -94,10 +94,37 @@ def parseStockData(stockData):
 
     return category_listing
             
-    
+
 class TokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
         return (six.text_type(user.pk)+six.text_type(timestamp)+six.text_type(user.is_email_verified))
+
+
+def send_order_pharmacy_notifications(order, title = 'Rider found'):
+    from order.serializers import RetrieveOrderSerializer
+
+    message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.order.id}'
+
+    user_profiles = order.pharmacy.user_profiles.all()
+    users = [profile.user for profile in user_profiles]
+    order_serializer = RetrieveOrderSerializer(instance=order)
+
+
+    sendFCMNotification.delay(users, title, message)
+    sendFCMMessage.delay(users, order_serializer.data)
+
+
+def send_order_rider_notifications(user, order, history_id):
+    from order.serializers import RetrieveOrderSerializer
+
+    message = f'You have been assigned to deliver order no. {order.id} from {order.pharmacy.name} pharmacy'
+    title = 'New Order'
+    order_serializer = RetrieveOrderSerializer(instance=order)
+    data = order_serializer.data
+    data['rider_response_id'] = history_id
+
+    sendFCMNotification.delay([user], title, message)
+    sendFCMMessage.delay([user], data)
 
 
 generate_token = TokenGenerator()
