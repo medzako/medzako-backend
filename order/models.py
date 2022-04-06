@@ -156,3 +156,4 @@ class RiderHistory(AbstractBaseModel):
         null=True
     )
     is_accepted = models.BooleanField(default=False)
+    is_canceled = models.BooleanField(default=False)

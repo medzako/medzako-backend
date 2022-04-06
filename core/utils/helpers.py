@@ -101,13 +101,13 @@ class TokenGenerator(PasswordResetTokenGenerator):
 
 
 def send_order_pharmacy_notifications(order, title = 'Rider found'):
-    from order.serializers import RetrieveOrderSerializer
+    from order.serializers import FCMOrderSerializer
 
     message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.order.id}'
 
     user_profiles = order.pharmacy.user_profiles.all()
     users = [profile.user for profile in user_profiles]
-    order_serializer = RetrieveOrderSerializer(instance=order)
+    order_serializer = FCMOrderSerializer(instance=order)
 
 
     sendFCMNotification.delay(users, title, message)
@@ -115,11 +115,11 @@ def send_order_pharmacy_notifications(order, title = 'Rider found'):
 
 
 def send_order_rider_notifications(user, order, history_id):
-    from order.serializers import RetrieveOrderSerializer
+    from order.serializers import FCMOrderSerializer
 
     message = f'You have been assigned to deliver order no. {order.id} from {order.pharmacy.name} pharmacy'
     title = 'New Order'
-    order_serializer = RetrieveOrderSerializer(instance=order)
+    order_serializer = FCMOrderSerializer(instance=order)
     data = order_serializer.data
     data['rider_response_id'] = history_id
 

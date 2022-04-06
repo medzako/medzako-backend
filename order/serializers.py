@@ -33,6 +33,12 @@ class LocationSerializer(serializers.ModelSerializer):
             'customer': {'read_only': True}
         }
         
+class FCMOrderSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Order
+        fields = '__all__'
+
 
 class FetchItemsSerializer(serializers.ModelSerializer):
     medication = MedicationSerializer()
@@ -64,10 +70,15 @@ class OrderSerializer(serializers.ModelSerializer):
             'long': instance.pharmacy.location_long,
             'tracking_id': tracking_id
         }
-
         
         models.CurrentOrderLocation.objects.create(**tracking_info)
 
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        serializer = FCMOrderSerializer(instance=instance)
+        sendFCMMessage.delay([instance.customer], serializer.data)
         return instance
     
     class Meta:
@@ -224,18 +235,25 @@ class RiderHistorySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
-        
-        if instance.is_accepted:
-            send_order_pharmacy_notifications(instance.order)
-        else:
+
+        def get_new_rider():
             rider_history_object = models.RiderHistory.objects.create(order=instance, rider=rider)
             pharmacy=instance.order.pharmacy
             rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
 
             send_order_rider_notifications(rider, instance.order, rider_history_object.id)
+        
+        if instance.is_accepted:
+            send_order_pharmacy_notifications(instance.order)
+            instance.order.rider=instance.rider
+            instance.order.save()
+        else:
+            get_new_rider()
+        if instance.is_canceled:
+            get_new_rider()
 
         return instance
 
     class Meta:
         model = models.RiderHistory
-        fields = ['is_accepted']
+        fields = ['is_accepted', 'is_canceled']
