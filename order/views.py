@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AnonymousUser
 from django.db.models.query import QuerySet
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -138,4 +139,9 @@ class PaymentView(generics.ListCreateAPIView):
             pass
         
         return Response({})
+    
+
+def payment_message(request):
+
+    return render(request, 'order/payment_message.html')
     

@@ -8,7 +8,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Activation Successful</title>
+        <title>Payment</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" type="text/css" href="{% static 'css/auth.css' %}">
@@ -25,15 +25,10 @@
                 </div>
                 <div class="message">
                     <span class="msg-header">
-                        Verification Successful
+                        Payment Processing
                     </span>
                     <div class="msg-body">
-                        {% autoescape off %}
-
-                        Hi {{user.username}}, you have successfully verified your email. You can now start using medzako.
-
-
-                        {% endautoescape %}
+                        Hi, your payment is being processed.
                     </div>
                 </div>
 
