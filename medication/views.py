@@ -112,7 +112,7 @@ class RetrieveUpdateDestroyMedicationView(generics.RetrieveUpdateDestroyAPIView)
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        stock_serializer = serializers.MedicationStockSerializer(instance.stock, many=True)
+        stock_serializer = serializers.MedicationStockSerializer(instance.stock.filter(in_stock=True), many=True)
         data['stock'] = stock_serializer.data
         return Response(data=data)
 

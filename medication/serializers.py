@@ -65,7 +65,7 @@ class FetchPharmacySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Pharmacy
-        fields = '__all__'
+        fields = ['id', 'location_lat', 'location_long', 'location_name', 'name', 'image']
 
     
 class SinglePharmacySerializer(serializers.ModelSerializer):
@@ -114,7 +114,7 @@ class SearchStockSerializer(serializers.ModelSerializer):
 
 
 class MedicationStockSerializer(serializers.ModelSerializer):
-    pharmacy = PharmacySerializer()
+    pharmacy = FetchPharmacySerializer()
 
     class Meta:
         model = models.PharmacyStock
