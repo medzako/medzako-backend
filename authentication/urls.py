@@ -21,5 +21,7 @@ urlpatterns = [
     path("verify/<slug:token>/", views.verify_user, name="verify_user"),
     path("riders/licenses/", views.FetchRiderLincensesView.as_view(), name="fetch_rider_licenses"),
     path("riders/profile-pic/", views.UploadProfilePicView.as_view(), name="upload_profile_pic"),
+    path("send-test-notification/", views.SendNotification.as_view(), name="send_fcm_notification"),
+    path("send-fcm-test-data/", views.SendFCMData.as_view(), name="send_fcm_data"),
 
 ]

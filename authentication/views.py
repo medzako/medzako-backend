@@ -14,9 +14,9 @@ from rest_framework.response import Response
 
 from rest_framework_simplejwt.views import TokenViewBase
 
-from core.permissions import IsCurrentUser, IsRider
+from core.permissions import IsAdminOrReadOnly, IsCurrentUser, IsRider
 from medication.models import Pharmacy
-from core.utils.helpers import generate_token, raise_validation_error
+from core.utils.helpers import generate_token, raise_validation_error, sendFCMMessage, sendFCMNotification
 
 from . import serializers
 from . import models
@@ -128,9 +128,31 @@ class CurrentRiderLocationView(generics.GenericAPIView):
 
 class UpdateUser(generics.UpdateAPIView):
     """Update user that uses url params to get user"""
-    permission_classes = [IsAuthenticated, IsCurrentUser]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     queryset = models.User.objects.all()
     serializer_class = serializers.UpdateUserSerializer
+
+
+class SendNotification(generics.RetrieveAPIView):
+    """Update user that uses url params to get user"""
+    permission_classes = [IsAuthenticated]
+    queryset = QuerySet()
+    serializer_class = serializers.UpdateUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        sendFCMNotification([request.user], 'Test Notification', 'This is a test notification')
+        return Response({})
+
+
+class SendFCMData(generics.RetrieveAPIView):
+    """Update user that uses url params to get user"""
+    permission_classes = [IsAuthenticated]
+    queryset = QuerySet()
+    serializer_class = serializers.UpdateUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        sendFCMMessage([request.user], {'data': 'test data', 'message': 'Your shit is working'})
+        return Response({})
 
 
 class UpdateUserNoId(generics.UpdateAPIView):
