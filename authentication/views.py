@@ -140,7 +140,7 @@ class SendNotification(generics.RetrieveAPIView):
     serializer_class = serializers.UpdateUserSerializer
 
     def get(self, request, *args, **kwargs):
-        sendFCMNotification([request.user], 'Test Notification', 'This is a test notification')
+        sendFCMNotification.delay([request.user], 'Test Notification', 'This stuff is working dude')
         return Response({})
 
 
@@ -151,7 +151,7 @@ class SendFCMData(generics.RetrieveAPIView):
     serializer_class = serializers.UpdateUserSerializer
 
     def get(self, request, *args, **kwargs):
-        sendFCMMessage([request.user], {'data': 'test data', 'message': 'Your shit is working'})
+        sendFCMMessage.delay([request.user], {'data': 'test data', 'message': 'Your shit is working'})
         return Response({})
 
 

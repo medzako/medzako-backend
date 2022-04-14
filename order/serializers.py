@@ -7,7 +7,7 @@ from core.utils.constants import ACCEPTED, DELIVERED
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
-from core.utils.helpers import generate_random_string, get_rider, raise_validation_error, send_order_pharmacy_notifications, send_order_rider_notifications, sendFCMMessage, sendFCMNotification
+from core.utils.helpers import generate_random_string, get_pharmacy_users, get_rider, raise_validation_error, send_order_pharmacy_notifications, send_order_rider_notifications, sendFCMMessage, sendFCMNotification
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -151,9 +151,9 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
                 rider_history_object = models.RiderHistory.objects.create(order=instance, rider=rider)
 
                 send_order_rider_notifications(rider, instance, rider_history_object.id)
-
-            else:
                 send_order_pharmacy_notifications(instance)
+            else:
+                send_order_pharmacy_notifications(instance, rider)
             
 
         return instance
@@ -187,11 +187,17 @@ class PaymentSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         instance =  super().save(**kwargs)
-        order = models.Order.objects.filter(customer__email=instance.customer_email, payment=None).order_by('-id').first()
+        order = models.Order.objects.filter(customer__email=instance.customer_email, is_payment_complete=False).order_by('-id').first()
+
         if order:
             order.payment = instance
             order.is_payment_complete = True
             order.save()
+            users = []
+            users.append(order.customer)
+            users += get_pharmacy_users(order.pharmacy)
+            sendFCMNotification.delay(users, 'Payment Complete', f'A payment of {instance.amount} has been received')
+
         return instance
 
     class Meta:
@@ -231,7 +237,6 @@ class PharmacyEarningsSerializer(serializers.ModelSerializer):
 
 
 class RiderHistorySerializer(serializers.ModelSerializer):
-
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)

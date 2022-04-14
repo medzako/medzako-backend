@@ -99,16 +99,18 @@ class TokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
         return (six.text_type(user.pk)+six.text_type(timestamp)+six.text_type(user.is_email_verified))
 
+def get_pharmacy_users(pharmacy):
+    user_profiles = pharmacy.user_profiles.all()
+    return [profile.user for profile in user_profiles]
 
 def send_order_pharmacy_notifications(order, title = 'Rider found'):
     from order.serializers import FCMOrderSerializer
 
     message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.order.id}'
 
-    user_profiles = order.pharmacy.user_profiles.all()
-    users = [profile.user for profile in user_profiles]
+    
     order_serializer = FCMOrderSerializer(instance=order)
-
+    users = get_pharmacy_users(order.pharmacy)
 
     sendFCMNotification.delay(users, title, message)
     sendFCMMessage.delay(users, order_serializer.data)
