@@ -71,7 +71,7 @@ class RiderOrderTrackingConsumer(AsyncWebsocketConsumer):
         db_tracking_id = await get_tracking_id(self)
 
         if tracking_id == db_tracking_id:
-            if method == 'update':
+            if method == 'update' and lat and long:
                 await update_tracking_loc(self, lat=lat, long=long)
                 messages.append('Update succesful')
             elif method =='fetch':

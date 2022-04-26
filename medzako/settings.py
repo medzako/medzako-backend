@@ -252,6 +252,7 @@ FCM_DJANGO_SETTINGS = {
      # are deleted upon receiving error response from FCM
      # default: False
     "DELETE_INACTIVE_DEVICES": False,
+    "UPDATE_ON_DUPLICATE_REG_ID": True,
 }
 
 django_heroku.settings(locals())
