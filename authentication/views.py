@@ -140,7 +140,7 @@ class SendNotification(generics.RetrieveAPIView):
     serializer_class = serializers.UpdateUserSerializer
 
     def get(self, request, *args, **kwargs):
-        sendFCMNotification.delay([request.user], 'Test Notification', 'This stuff is working dude')
+        sendFCMNotification([request.user], 'Test Notification', 'This stuff is working dude')
         return Response({})
 
 

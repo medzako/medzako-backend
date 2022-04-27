@@ -2,6 +2,7 @@ from geopy.distance import distance
 import random
 import string
 from decimal import Decimal
+import logging
 
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
@@ -12,6 +13,11 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import six
 from medzako.celery import app
 
+
+logger = logging.getLogger(__name__)
+
+def logActivity(data):
+    logger.info(data)
 
 def raise_validation_error(message=None):
     raise ValidationError(message)
@@ -52,7 +58,7 @@ def sendFCMMessage(users, data):
         messageObj = Message(
             data=data
         )
-        devices.send_message(messageObj)
+        logActivity(devices.send_message(messageObj))
 
 
 @app.task()
@@ -61,7 +67,7 @@ def sendFCMNotification(users, title, body, image_url=""):
     mesageObj = Message(notification=Notification(title=title, body=body, image=image_url))
     for user in users:
         devices = FCMDevice.objects.filter(user=user)
-        devices.send_message(mesageObj)
+        logger.info(devices.send_message(mesageObj))
 
 
 def parseStockData(stockData):
