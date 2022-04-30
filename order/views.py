@@ -123,6 +123,15 @@ class UpdateRiderHistory(generics.RetrieveUpdateAPIView):
     queryset = QuerySet()
     serializer_class = serializers.RiderHistorySerializer
 
+class FetchRiderHistory(generics.ListCreateAPIView):
+    permission_classes = [IsRider]
+    queryset = models.RiderHistory.objects.all()
+    serializer_class = serializers.RiderHistorySerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(rider=self.request.user)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PaymentView(generics.ListCreateAPIView):

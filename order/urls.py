@@ -13,5 +13,6 @@ urlpatterns = [
     path("payment-webhook/", views.PaymentView.as_view(), name="payment_webhook"),
     path("earnings/", views.FetchEarningsView.as_view(), name="fetch_earnings"),
     path("rider-response/<int:pk>/", views.UpdateRiderHistory.as_view(), name="respond_to_rider_order"),
+    path("rider-history/", views.FetchRiderHistory.as_view(), name="fech_rider_history"),
     path("payment-message/", views.payment_message, name="payment_message"),
 ]
