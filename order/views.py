@@ -129,8 +129,14 @@ class FetchRiderHistory(generics.ListCreateAPIView):
     serializer_class = serializers.RiderHistorySerializer
 
     def get_queryset(self):
+        filter_query = self.request.query_params.get('filter', 'all')
+
         queryset = super().get_queryset()
-        return queryset.filter(rider=self.request.user)
+        queryset = queryset.filter(rider=self.request.user)
+        if filter_query == 'pending':
+            queryset.filter(is_accepted=False, is_canceled=False)
+
+        return queryset
 
 
 @method_decorator(csrf_exempt, name='dispatch')
