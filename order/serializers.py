@@ -3,7 +3,7 @@ from django.db.utils import IntegrityError
 from authentication.models import User
 from authentication.serializers import UserSerializer
 
-from core.utils.constants import ACCEPTED, DELIVERED
+from core.utils.constants import ACCEPTED, DELIVERED, RIDER
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
@@ -142,7 +142,11 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
             for item in instance.items.all():
                 item.medication.units_moved += item.quantity
                 item.medication.save()
+
         if instance.status == ACCEPTED:
+            for rider in User.objects.filter(user_type=RIDER):
+                send_order_rider_notifications(rider, instance, 1)
+
             pharmacy=instance.pharmacy
             rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
             if rider:
