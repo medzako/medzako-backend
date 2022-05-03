@@ -17,6 +17,7 @@ class Pharmacy(AbstractBaseModel):
     image = CloudinaryField('image')
     rating = models.DecimalField(default=0, decimal_places=1, max_digits=1)
     completed_orders = models.IntegerField(default=0)
+    is_online = models.BooleanField(default=False)
 
     @property
     def get_rating(self):

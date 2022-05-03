@@ -59,3 +59,9 @@ class IsRiderOwnerObject(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         return obj.rider == request.user
+
+
+class IsPharmacyOnline(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, obj):
+        return obj.rider == request.user

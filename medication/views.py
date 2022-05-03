@@ -46,7 +46,7 @@ class ListPharmacyView(generics.ListAPIView):
     serializer_class = serializers.FetchPharmacySerializer
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(is_online=True)
         order_by = self.request.query_params.get('order-by', PROXIMITY)
 
         if order_by == RATING:
@@ -165,7 +165,7 @@ class SearchPharmacyMedication(generics.ListCreateAPIView):
     def get_queryset(self):
         pharmacy_id = self.request.query_params.get('pharmacy_id')
         self.pharmacy_id = pharmacy_id
-        pharmacy = generics.get_object_or_404(models.Pharmacy, pk=pharmacy_id)
+        pharmacy = generics.get_object_or_404(models.Pharmacy, pk=pharmacy_id, is_online=True)
         available_stock = pharmacy.available_stock.filter(in_stock=True)
         self.available_stock = available_stock
         medications_ids = [stock.medication.id for stock in available_stock]
@@ -198,7 +198,7 @@ class MedicationStock(generics.GenericAPIView):
         return Response(data=data)
 
 
-class UpdateharmacyView(generics.RetrieveUpdateAPIView):
+class UpdatePharmacyView(generics.RetrieveUpdateAPIView):
     """Update Pharmacy with No Id. This enpoint picks the pharmacy from the request""" 
 
     permission_classes = [IsPharmacist]
