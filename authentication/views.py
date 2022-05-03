@@ -47,8 +47,8 @@ class FetchUserView(generics.GenericAPIView):
         return Response(serializer.data)
 
 
-class FetchRiderProfileView(generics.GenericAPIView):
-    """Fetch rider profile"""
+class FetchUpdateRiderProfileView(generics.GenericAPIView):
+    """Fetch and update rider profile"""
 
     permission_classes = [IsRider]
     queryset = QuerySet()
@@ -60,6 +60,12 @@ class FetchRiderProfileView(generics.GenericAPIView):
         data = serializer.data
         data['profile_pic'] = profile_pic_serializer.data
         return Response(data)
+
+    def patch(self, request, *args, **kwargs):
+        serializer = self.get_serializer(request.user.rider_profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save
+        return Response(serializer.data)
 
 
 class UploadPharmacyLincenseView(generics.CreateAPIView):

@@ -103,6 +103,19 @@ class RiderProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RiderProfile
         fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only':True},
+            'is_approved': {'read_only':True},
+        }
+
+class AdminRiderProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.RiderProfile
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only':True},
+        }
 
 
 class VerifyUserSerializer(serializers.Serializer):
