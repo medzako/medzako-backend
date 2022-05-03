@@ -23,5 +23,6 @@ urlpatterns = [
     path("riders/profile-pic/", views.UploadProfilePicView.as_view(), name="upload_profile_pic"),
     path("send-test-notification/", views.SendNotification.as_view(), name="send_fcm_notification"),
     path("send-fcm-test-data/", views.SendFCMData.as_view(), name="send_fcm_data"),
+    path("update-rider-location/", views.CurrentRiderLocationView.as_view(), name="update_rider_location"),
 
 ]

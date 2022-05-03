@@ -52,7 +52,7 @@ class FetchRiderProfileView(generics.GenericAPIView):
 
     permission_classes = [IsRider]
     queryset = QuerySet()
-    serializer_class = serializers.RegistrationSerializer
+    serializer_class = serializers.RiderProfileSerializer
 
     def get(self, request, *args, **kwargs):
         serializer = serializers.RiderProfileSerializer(instance=request.user.rider_profile)

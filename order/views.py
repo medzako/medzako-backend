@@ -108,10 +108,13 @@ class FetchEarningsView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         queryset = super().get_queryset()
         if request.user.user_type == RIDER:
-            queryset = request.rider_earnings
+            queryset = request.user.rider_earnings
             serializer = serializers.RiderEarningsSerializer(queryset, many=True)
         elif request.user.user_type == PHARMACIST:
-            queryset = request.user.pharmacist_profile.pharmacy.pharmacy_earnings
+            if request.user.pharmacist_profile.pharmacy:
+                queryset = request.user.pharmacist_profile.pharmacy.pharmacy_earnings
+            else:
+                raise_validation_error({'detail': 'Create pharmacy first'})
             serializer = serializers.PharmacyEarningsSerializer(queryset, many=True)
         else:
             raise_validation_error({'detail': 'Your user type does not have earnings'})
@@ -119,11 +122,13 @@ class FetchEarningsView(generics.GenericAPIView):
 
 
 class UpdateRiderHistory(generics.RetrieveUpdateAPIView):
+    """Accept or reject orders"""
     permission_classes = [IsRider, IsRiderOwnerObject]
     queryset = QuerySet()
     serializer_class = serializers.RiderHistorySerializer
 
 class FetchRiderHistory(generics.ListCreateAPIView):
+    """View rider history and pending rider orders. use ?filter='all' or =pending, ='accepted', ='rejected'"""
     permission_classes = [IsRider]
     queryset = models.RiderHistory.objects.all()
     serializer_class = serializers.RiderHistorySerializer
@@ -134,7 +139,14 @@ class FetchRiderHistory(generics.ListCreateAPIView):
         queryset = super().get_queryset()
         queryset = queryset.filter(rider=self.request.user)
         if filter_query == 'pending':
-            queryset.filter(is_accepted=False, is_canceled=False)
+            queryset.filter(is_accepted=None)
+
+        elif filter_query == 'accepted':
+            queryset.filter(is_accepted=True)
+
+        elif filter_query == 'rejected':
+            queryset.filter(is_accepted=False)
+        
 
         return queryset
 
