@@ -252,17 +252,15 @@ class RiderHistorySerializer(serializers.ModelSerializer):
 
             send_order_rider_notifications(rider, instance.order, rider_history_object.id)
         
-        if instance.is_accepted:
+        if instance.is_accepted==True:
             send_order_pharmacy_notifications(instance.order)
             instance.order.rider=instance.rider
             instance.order.save()
-        else:
-            get_new_rider()
-        if instance.is_canceled:
+        elif instance.is_accepted==False:
             get_new_rider()
 
         return instance
 
     class Meta:
         model = models.RiderHistory
-        fields = ['is_accepted', 'is_canceled']
+        fields = ['is_accepted']
