@@ -56,15 +56,20 @@ class FetchUpdateRiderProfileView(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         serializer = serializers.RiderProfileSerializer(instance=request.user.rider_profile)
-        profile_pic_serializer = serializers.RiderProfileImageSerializer(instance=request.user.rider_profile.profile_pic)
         data = serializer.data
-        data['profile_pic'] = profile_pic_serializer.data
+        data['profile_pic'] = ''
+        try:
+            profile_pic_serializer = serializers.RiderProfileImageSerializer(instance=request.user.rider_profile.profile_pic)
+            data['profile_pic'] = profile_pic_serializer.data
+        except models.RiderProfile.profile_pic.RelatedObjectDoesNotExist:
+            pass
+        
         return Response(data)
 
     def patch(self, request, *args, **kwargs):
         serializer = self.get_serializer(request.user.rider_profile, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save
+        serializer.save()
         return Response(serializer.data)
 
 
