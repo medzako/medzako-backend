@@ -27,6 +27,8 @@ class CreateListOrdersView(generics.ListCreateAPIView):
     def get_queryset(self):
         if self.request.user.user_type == PHARMACIST:
             pharmacy = self.request.user.pharmacy_profile.pharmacy
+            if not pharmacy:
+                raise_validation_error({'detail': 'This user has no pharmacy attached'})
             return models.Order.objects.filter(pharmacy=pharmacy)
         return self.request.user.orders.all()
 

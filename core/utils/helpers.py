@@ -11,6 +11,7 @@ from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import six
+from core.utils.constants import RIDER
 from medzako.celery import app
 
 
@@ -40,7 +41,7 @@ def generate_random_string(length):
 
 @app.task()
 def get_rider(destination):
-    from authentication.models import CurrentRiderLocation
+    from authentication.models import CurrentRiderLocation, User
 
     maximum_radius = settings.MAXIMUM_RADIUS
     rider_locations = CurrentRiderLocation.objects.all()
@@ -48,6 +49,8 @@ def get_rider(destination):
     riders_distances.sort(key=lambda x: x[1])
     if riders_distances[0][1] < maximum_radius:
         return riders_distances[0]
+
+    return User.objects.filter(user_type=RIDER)[0]
 
 
 @app.task()
