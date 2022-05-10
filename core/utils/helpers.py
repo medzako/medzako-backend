@@ -50,7 +50,7 @@ def get_rider(destination):
     if riders_distances[0][1] < maximum_radius:
         return riders_distances[0]
 
-    return User.objects.filter(user_type=RIDER)[0]
+    return User.objects.filter(user_type=RIDER, pk=19).first()
 
 
 @app.task()
