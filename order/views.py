@@ -25,6 +25,9 @@ class CreateListOrdersView(generics.ListCreateAPIView):
     filterset_fields = ('status', 'is_completed')
 
     def get_queryset(self):
+        if self.request.user.user_type == PHARMACIST:
+            pharmacy = self.request.user.pharmacy_profile.pharmacy
+            return models.Order.objects.filter(pharmacy=pharmacy)
         return self.request.user.orders.all()
 
     def get_serializer(self, *args, **kwargs):
