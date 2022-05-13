@@ -14,9 +14,9 @@ from rest_framework.response import Response
 
 from rest_framework_simplejwt.views import TokenViewBase
 
-from core.permissions import IsAdminOrReadOnly, IsCurrentUser, IsRider
+from core.permissions import IsAdminOrReadOnly, IsCurrentUser, IsCustomer, IsRider
 from medication.models import Pharmacy
-from core.utils.helpers import generate_token, raise_validation_error, sendFCMMessage, sendFCMNotification
+from core.utils.helpers import sendFCMMessage, sendFCMNotification
 
 from . import serializers
 from . import models
@@ -189,4 +189,4 @@ def verify_user(request, token):
     user.save()
 
     return render(request, 'authentication/activate-failed.html', {"user": user})
-
+    

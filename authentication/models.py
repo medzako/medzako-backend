@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -16,8 +17,6 @@ from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from jwt import encode
-
-
 
 from rest_framework.exceptions import ValidationError
 from core.utils.constants import CUSTOMER, PHARMACIST, PHARMACY_LICENSES, RIDER, RIDER_LICENSES, USER_TYPES
@@ -154,6 +153,24 @@ class RiderProfile(AbstractBaseModel):
         null=True)
     is_approved = models.BooleanField(default=False)
     is_online = models.BooleanField(default=False)
+    rating = models.DecimalField(default=0, decimal_places=1, max_digits=1)
+
+    @property
+    def get_rating(self):
+        ratings = self.rider_ratings.all()
+        total_rating = 0
+
+        for rating in ratings:
+            total_rating += rating.rating
+        if ratings:
+            rating = total_rating/len(ratings)
+            return Decimal(round(rating, 1))
+        return 0
+
+    def save(self, *args, **kwargs) -> None:
+        self.rating = self.get_rating
+        return super().save(*args, **kwargs)
+
     
 
 class CustomerProfile(AbstractBaseModel):
@@ -220,8 +237,8 @@ class RiderProfileImage(AbstractBaseModel):
 
 
 class CurrentRiderLocation(AbstractBaseModel):
-    rider_profile = models.OneToOneField(
-        'RiderProfile',
+    rider = models.OneToOneField(
+        'User',
         on_delete=models.CASCADE,
         related_name='current_location',
     )

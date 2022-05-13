@@ -130,7 +130,7 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         instance =  super().save(**kwargs)
-        if instance.is_completed or instance.status == DELIVERED:
+        if  instance.status == DELIVERED:
             try:
                 models.OrderEarning.objects.create(order=instance, 
                 pharmacy=instance.pharmacy, 
@@ -266,6 +266,30 @@ class RiderHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RiderHistory
         fields = ['is_accepted', 'order']
-        extra_qwargs = {
+        extra_kwargs = {
             'order': {'read_only': True}
+        }
+
+
+class RiderRatesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.RiderRating
+        fields = '__all__'
+        extra_kwargs = {
+            'order': {'read_only': True},
+            'rider': {'read_only': True},
+            'customer': {'read_only': True}
+        }
+
+
+class PharmacyRatesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.PharmacyRating
+        fields = '__all__'
+        extra_kwargs = {
+            'order': {'read_only': True},
+            'pharmacy': {'read_only': True},
+            'customer': {'read_only': True}
         }

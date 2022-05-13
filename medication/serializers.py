@@ -81,13 +81,6 @@ class MinimizedPharmacySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class RatesSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Rating
-        fields = '__all__'
-
-
 class GetStockSerializer(serializers.ModelSerializer):
     medication = SingleMedicationSerializer()
 

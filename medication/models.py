@@ -91,17 +91,3 @@ class PharmacyStock(AbstractBaseModel):
 
     class Meta:
         unique_together = ['medication', 'pharmacy']
-
-
-class Rating(AbstractBaseModel):
-    pharmacy = models.ForeignKey(
-        'medication.Pharmacy', 
-        related_name='ratings',
-        on_delete=models.CASCADE
-        )
-    customer = models.ForeignKey(
-        'authentication.User',
-        related_name='rating',
-        on_delete=models.CASCADE
-    )
-    rating = models.IntegerField()

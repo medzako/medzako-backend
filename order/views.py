@@ -10,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 
-from core.permissions import IsRider, IsRiderOwnerObject
-from core.utils.constants import PHARMACIST, RIDER
+from core.permissions import IsCustomer, IsRider, IsRiderOwnerObject
+from core.utils.constants import DELIVERED, PHARMACIST, RIDER
 from core.utils.helpers import raise_validation_error, sendFCMMessage
 
 from . import models, serializers
@@ -26,10 +26,10 @@ class CreateListOrdersView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.user_type == PHARMACIST:
-            pharmacy = self.request.user.pharmacy_profile.pharmacy
+            pharmacy = self.request.user.pharmacist_profile.pharmacy
             if not pharmacy:
                 raise_validation_error({'detail': 'This user has no pharmacy attached'})
-            return models.Order.objects.filter(pharmacy=pharmacy)
+            return pharmacy.orders.all()
         return self.request.user.orders.all()
 
     def get_serializer(self, *args, **kwargs):
@@ -56,6 +56,14 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = models.Order.objects.all()
     serializer_class = serializers.UpdateOrderSerializer
+
+    def get_queryset(self):
+        if self.request.user.user_type == PHARMACIST:
+            pharmacy = self.request.user.pharmacist_profile.pharmacy
+            if not pharmacy:
+                raise_validation_error({'detail': 'This user has no pharmacy attached'})
+            return pharmacy.orders.all()
+        return self.request.user.orders.all()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -176,4 +184,44 @@ class PaymentView(generics.ListCreateAPIView):
 def payment_message(request):
 
     return render(request, 'order/payment_message.html')
-    
+
+
+class RateRiderView(generics.UpdateAPIView):
+    """Rate Rider"""
+    permission_classes = [IsAuthenticated, IsCustomer]
+    queryset = models.Order.objects.all()
+    serializer_class = serializers.RiderRatesSerializer
+
+    def get_queryset(self):
+        return self.request.user.orders.all()
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.status != DELIVERED:
+            raise_validation_error({'detail': 'The order has to be delivered before it can be rated'})
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        rating = models.RiderRating.objects.create(rider=instance.rider, order=instance, customer=instance.customer,  **serializer.data)
+        serializer = self.get_serializer(rating)
+        return Response(serializer.data)
+
+
+class RatePharmacyView(generics.UpdateAPIView):
+    """Rate Rider"""
+    permission_classes = [IsAuthenticated, IsCustomer]
+    queryset = models.Order.objects.all()
+    serializer_class = serializers.PharmacyRatesSerializer
+
+    def get_queryset(self):
+        return self.request.user.orders.all()
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.status != DELIVERED:
+            raise_validation_error({'detail': 'The order has to be delivered before it can be rated'})
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        rating = models.PharmacyRating.objects.create(pharmacy=instance.pharmacy, order=instance, customer=instance.customer,  **serializer.data)
+        serializer = self.get_serializer(rating)
+        return Response(serializer.data)
+ 

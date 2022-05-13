@@ -45,10 +45,11 @@ def get_rider(destination):
 
     maximum_radius = settings.MAXIMUM_RADIUS
     rider_locations = CurrentRiderLocation.objects.all()
-    riders_distances = [(rider_location.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
+    riders_distances = [(rider_location.rider_profile.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
     riders_distances.sort(key=lambda x: x[1])
-    if riders_distances[0][1] < maximum_radius:
-        return riders_distances[0]
+    if riders_distances:
+        if riders_distances[0][1] < maximum_radius:
+            return riders_distances[0]
 
     return User.objects.filter(user_type=RIDER, pk=19).first()
 
@@ -115,8 +116,7 @@ def get_pharmacy_users(pharmacy):
 def send_order_pharmacy_notifications(order, title = 'Rider found'):
     from order.serializers import FCMOrderSerializer
 
-    message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.order.id}'
-
+    message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.id}'
     
     order_serializer = FCMOrderSerializer(instance=order)
     users = get_pharmacy_users(order.pharmacy)
@@ -136,6 +136,3 @@ def send_order_rider_notifications(user, order, history_id):
 
     sendFCMNotification.delay([user], title, message)
     sendFCMMessage.delay([user], data)
-
-
-generate_token = TokenGenerator()

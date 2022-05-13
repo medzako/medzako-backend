@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from core.utils.helpers import add_distance_to_pharmacy, parseStockData, raise_validation_error
 from . import models, serializers
-from core.permissions import IsAdminOrReadOnly, IsPharmacist
+from core.permissions import IsAdminOrReadOnly, IsCustomer, IsPharmacist
 
 RATING = 'rating'
 POPULARITY = 'popularity'
@@ -136,13 +136,6 @@ class RetrieveUpdateDestroyCategoryView(generics.RetrieveUpdateDestroyAPIView):
         return Response(data=data)
 
 
-class RatePharmacyView(generics.CreateAPIView):
-    """Rate Order"""
-    permission_classes = [IsAuthenticated]
-    queryset = models.Rating.objects.all()
-    serializer_class = serializers.RatesSerializer
-
-
 class SearchMedication(generics.ListCreateAPIView):
     "Search medication by adding ?search=name parameter to the URL"
 
@@ -151,6 +144,7 @@ class SearchMedication(generics.ListCreateAPIView):
     queryset = models.Medication.objects.all()
     serializer_class = serializers.MedicationSerializer
     permission_classes = [IsAuthenticated]
+
 
 class SearchPharmacyMedication(generics.ListCreateAPIView):
     "Search medicationin a pharmacy by adding ?pharmacy_id=<id>&search=name parameter to the URL"

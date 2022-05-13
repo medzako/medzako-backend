@@ -108,6 +108,7 @@ class RiderProfileSerializer(serializers.ModelSerializer):
             'is_approved': {'read_only':True},
         }
 
+
 class AdminRiderProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -141,8 +142,8 @@ class RiderLocationSerializer(serializers.Serializer):
     def create(self, validated_data):
         lat = validated_data.pop('lat')
         long = validated_data.pop('long')
-        rider_profile = self.context['request'].user.rider_profile
-        instance, _ = models.CurrentRiderLocation.objects.get_or_create(rider_profile=rider_profile)
+        rider = self.context['request'].user
+        instance, _ = models.CurrentRiderLocation.objects.get_or_create(rider=rider)
         instance.lat = lat
         instance.long = long
         instance.save()

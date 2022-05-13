@@ -1,7 +1,7 @@
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
 
-from core.utils.constants import PHARMACIST, RIDER
+from core.utils.constants import CUSTOMER, PHARMACIST, RIDER
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -29,6 +29,21 @@ class IsPharmacist(BasePermission):
             request.user and
             request.user.is_authenticated and 
             request.user.user_type==PHARMACIST):
+            return True
+            
+        return False
+
+
+class IsCustomer(BasePermission):
+    """
+    The request is authenticated as a pharmacist.
+    """
+    
+    def has_permission(self, request, view):
+        if (
+            request.user and
+            request.user.is_authenticated and 
+            request.user.user_type==CUSTOMER):
             return True
             
         return False

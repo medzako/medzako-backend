@@ -156,3 +156,43 @@ class RiderHistory(AbstractBaseModel):
         null=True
     )
     is_accepted = models.BooleanField(null=True)
+
+
+class RiderRating(AbstractBaseModel):
+    rider = models.ForeignKey(
+        'medication.Pharmacy', 
+        related_name='rider_ratings',
+        on_delete=models.CASCADE
+        )
+    customer = models.ForeignKey(
+        'authentication.User',
+        related_name='rider_ratings',
+        on_delete=models.CASCADE
+    )
+    order = models.OneToOneField(
+        'order.Order',
+        related_name='rider_rating',
+        on_delete=models.CASCADE
+    )
+    rating = models.IntegerField()
+    comment =  models.TextField(null=True)
+
+
+class PharmacyRating(AbstractBaseModel):
+    pharmacy = models.ForeignKey(
+        'medication.Pharmacy', 
+        related_name='ratings',
+        on_delete=models.CASCADE
+        )
+    customer = models.ForeignKey(
+        'authentication.User',
+        related_name='ratings',
+        on_delete=models.CASCADE
+    )
+    order = models.OneToOneField(
+        'order.Order',
+        related_name='rating',
+        on_delete=models.CASCADE
+    )
+    rating = models.IntegerField()
+    comment =  models.TextField(null=True)
