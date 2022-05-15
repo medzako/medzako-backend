@@ -19,7 +19,7 @@ from . import models, serializers
 
 class CreateListOrdersView(generics.ListCreateAPIView):
     """Creates and List Orders. Use ?status=<status> or is_complete=<boolean> to filter the orders"""
-    permission_classes = [IsAuthenticated]
+    permission_clasPses = [IsAuthenticated]
     queryset = models.Order.objects.all()
     serializer_class = serializers.OrderSerializer
     filterset_fields = ('status', 'is_completed')
@@ -139,6 +139,9 @@ class UpdateRiderHistory(generics.RetrieveUpdateAPIView):
     permission_classes = [IsRider, IsRiderOwnerObject]
     queryset = QuerySet()
     serializer_class = serializers.RiderHistorySerializer
+
+    def get_queryset(self):
+        return self.request.user.riders_history.all()
 
 class FetchRiderHistory(generics.ListCreateAPIView):
     """View rider history and pending rider orders. use ?filter='all' or =pending, ='accepted', ='rejected'"""
