@@ -45,7 +45,7 @@ def get_rider(destination):
 
     maximum_radius = settings.MAXIMUM_RADIUS
     rider_locations = CurrentRiderLocation.objects.all()
-    riders_distances = [(rider_location.rider_profile.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
+    riders_distances = [(rider_location.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
     riders_distances.sort(key=lambda x: x[1])
     if riders_distances:
         if riders_distances[0][1] < maximum_radius:
