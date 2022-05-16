@@ -244,8 +244,8 @@ class PharmacyEarningsSerializer(serializers.ModelSerializer):
 class RiderHistorySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
-        # if instance.is_accepted != None:
-        #     raise_validation_error({'detail': 'Order already accepted or rejected'})
+        if instance.is_accepted != None:
+            raise_validation_error({'detail': 'Order already accepted or rejected'})
 
         instance = super().update(instance, validated_data)
 
