@@ -143,11 +143,12 @@ class UpdateRiderHistory(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         return self.request.user.riders_history.all()
 
+
 class FetchRiderHistory(generics.ListCreateAPIView):
     """View rider history and pending rider orders. use ?filter='all' or =pending, ='accepted', ='rejected'"""
     permission_classes = [IsRider]
     queryset = models.RiderHistory.objects.all()
-    serializer_class = serializers.RiderHistorySerializer
+    serializer_class = serializers.RetrieveRiderHistorySerializer
 
     def get_queryset(self):
         filter_query = self.request.query_params.get('filter', 'all')

@@ -242,8 +242,6 @@ class PharmacyEarningsSerializer(serializers.ModelSerializer):
 
 class RiderHistorySerializer(serializers.ModelSerializer):
 
-    order = OrderSerializer()
-
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
 
@@ -266,6 +264,15 @@ class RiderHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RiderHistory
         fields = ['is_accepted', 'order']
+
+
+class RetrieveRiderHistorySerializer(serializers.ModelSerializer):
+
+    order = OrderSerializer()
+
+    class Meta:
+        model = models.RiderHistory
+        fields = '__all__'
         extra_kwargs = {
             'order': {'read_only': True}
         }

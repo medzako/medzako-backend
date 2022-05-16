@@ -157,7 +157,7 @@ class RiderProfile(AbstractBaseModel):
 
     @property
     def get_rating(self):
-        ratings = self.rider_ratings.all()
+        ratings = self.user.rider_ratings.all()
         total_rating = 0
 
         for rating in ratings:
