@@ -1,4 +1,3 @@
-from django.contrib.auth.models import AnonymousUser
 from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.utils.decorators import method_decorator

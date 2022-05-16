@@ -34,7 +34,7 @@ class LocationSerializer(serializers.ModelSerializer):
         }
         
 
-class RetrieveOrderSerializer(serializers.ModelSerializer):
+class FCMOrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Order
@@ -273,7 +273,7 @@ class RiderHistorySerializer(serializers.ModelSerializer):
 
 class RetrieveRiderHistorySerializer(serializers.ModelSerializer):
 
-    order = RetrieveOrderSerializer()
+    order = FCMOrderSerializer()
 
     class Meta:
         model = models.RiderHistory
