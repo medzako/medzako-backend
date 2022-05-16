@@ -1,3 +1,4 @@
+import json
 from geopy.distance import distance
 import random
 import string
@@ -17,7 +18,7 @@ from medzako.celery import app
 
 logger = logging.getLogger(__name__)
 
-def logActivity(data):
+def logInfo(data):
     logger.info(data)
 
 def raise_validation_error(message=None):
@@ -57,12 +58,14 @@ def get_rider(destination):
 @app.task()
 def sendFCMMessage(users, data): 
     """Send FCM data"""  
+    payload = json.dumps(data)
+
     for user in users: 
         devices = FCMDevice.objects.filter(user=user)
         messageObj = Message(
-            data=data
+            data=payload
         )
-        logActivity(devices.send_message(messageObj))
+        logInfo(devices.send_message(messageObj))
 
 
 @app.task()
@@ -114,11 +117,10 @@ def get_pharmacy_users(pharmacy):
     return [profile.user for profile in user_profiles]
 
 def send_order_pharmacy_notifications(order, title = 'Rider found'):
-    from order.serializers import FCMOrderSerializer
+    from order.serializers import RetrieveOrderSerializer
 
     message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.id}'
-    
-    order_serializer = FCMOrderSerializer(instance=order)
+    order_serializer = RetrieveOrderSerializer(instance=order)
     users = get_pharmacy_users(order.pharmacy)
 
     sendFCMNotification.delay(users, title, message)
@@ -126,11 +128,11 @@ def send_order_pharmacy_notifications(order, title = 'Rider found'):
 
 
 def send_order_rider_notifications(user, order, history_id):
-    from order.serializers import FCMOrderSerializer
+    from order.serializers import RetrieveOrderSerializer
 
     message = f'You have been assigned to deliver order no. {order.id} from {order.pharmacy.name} pharmacy'
     title = 'New Order'
-    order_serializer = FCMOrderSerializer(instance=order)
+    order_serializer = RetrieveOrderSerializer(instance=order)
     data = order_serializer.data
     data['rider_response_id'] = history_id
 

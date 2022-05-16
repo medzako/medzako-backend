@@ -154,7 +154,7 @@ class FetchRiderHistory(generics.ListCreateAPIView):
         filter_query = self.request.query_params.get('filter', 'all')
 
         queryset = super().get_queryset()
-        queryset = queryset.filter(rider=self.request.user)
+        queryset = self.request.user.riders_history.all()
         if filter_query == 'pending':
             queryset.filter(is_accepted=None)
 
@@ -164,7 +164,6 @@ class FetchRiderHistory(generics.ListCreateAPIView):
         elif filter_query == 'rejected':
             queryset.filter(is_accepted=False)
         
-
         return queryset
 
 

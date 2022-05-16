@@ -33,7 +33,8 @@ class LocationSerializer(serializers.ModelSerializer):
             'customer': {'read_only': True}
         }
         
-class FCMOrderSerializer(serializers.ModelSerializer):
+
+class RetrieveOrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Order
@@ -77,7 +78,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
-        serializer = FCMOrderSerializer(instance=instance)
+        serializer = RetrieveOrderSerializer(instance=instance)
         sendFCMMessage.delay([instance.customer], serializer.data)
         return instance
     
@@ -243,19 +244,23 @@ class PharmacyEarningsSerializer(serializers.ModelSerializer):
 class RiderHistorySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
+        # if instance.is_accepted != None:
+        #     raise_validation_error({'detail': 'Order already accepted or rejected'})
+
         instance = super().update(instance, validated_data)
 
-        def get_new_rider():
-            rider_history_object = models.RiderHistory.objects.create(order=instance, rider=rider)
+        def get_new_rider():   
             pharmacy=instance.order.pharmacy
             rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
+            rider_history_object = models.RiderHistory.objects.create(order=instance.order, rider=rider)
 
             send_order_rider_notifications(rider, instance.order, rider_history_object.id)
         
         if instance.is_accepted==True:
-            send_order_pharmacy_notifications(instance.order)
             instance.order.rider=instance.rider
             instance.order.save()
+            send_order_pharmacy_notifications(instance.order)
+            
         elif instance.is_accepted==False:
             get_new_rider()
 
@@ -268,7 +273,7 @@ class RiderHistorySerializer(serializers.ModelSerializer):
 
 class RetrieveRiderHistorySerializer(serializers.ModelSerializer):
 
-    order = OrderSerializer()
+    order = RetrieveOrderSerializer()
 
     class Meta:
         model = models.RiderHistory
