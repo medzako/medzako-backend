@@ -151,8 +151,9 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
             pharmacy=instance.pharmacy
             rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
             if rider:
+                import pdb; pdb.set_trace()
                 instance.rider = rider
-                instance.save
+                instance.save()
                 rider_history_object = models.RiderHistory.objects.create(order=instance, rider=rider)
 
                 send_order_rider_notifications(rider, instance, rider_history_object.id)

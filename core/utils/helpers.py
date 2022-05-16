@@ -50,8 +50,8 @@ def get_rider(destination):
     riders_distances.sort(key=lambda x: x[1])
     if riders_distances:
         if riders_distances[0][1] < maximum_radius:
-            return riders_distances[0]
-
+            return riders_distances[0][0]
+            
     return User.objects.filter(user_type=RIDER, pk=19).first()
 
 
