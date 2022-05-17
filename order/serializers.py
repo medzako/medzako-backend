@@ -3,11 +3,13 @@ from django.db.utils import IntegrityError
 from authentication.models import User
 from authentication.serializers import UserSerializer
 
-from core.utils.constants import ACCEPTED, DELIVERED, RIDER
+from core.utils.constants import ACCEPTED, DELIVERED, DISPATCHED, RIDER
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
-from core.utils.helpers import generate_random_string, get_pharmacy_users, get_rider, raise_validation_error, send_order_pharmacy_notifications, send_order_rider_notifications, sendFCMMessage, sendFCMNotification
+from core.utils.helpers import (generate_random_string, get_pharmacy_users, get_rider, raise_validation_error,
+ send_order_customer_notifications, send_order_pharmacy_notifications, send_order_rider_notifications, 
+ sendFCMMessage, sendFCMNotification)
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -145,9 +147,6 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
                 item.medication.save()
 
         if instance.status == ACCEPTED:
-            for rider in User.objects.filter(user_type=RIDER):
-                send_order_rider_notifications(rider, instance, 1)
-
             pharmacy=instance.pharmacy
             rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
             if rider:
@@ -157,12 +156,16 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
                 send_order_rider_notifications(rider, instance, rider_history_object.id)
                 send_order_pharmacy_notifications(instance)
+                send_order_customer_notifications(instance)
             else:
-                send_order_pharmacy_notifications(instance, rider)
-            
+                send_order_pharmacy_notifications(instance, title='Rider not Found', message='A rider has not been found at this time')
+
+        if instance.status == DISPATCHED:
+            if not instance.rider:
+                raise_validation_error({'detail': 'You cannot dispatch order without rider'})
+            send_order_customer_notifications(instance, title='Order Dispatched', message='Your order has been dispatched from the pharmacy') 
 
         return instance
-    
     
     class Meta:
         model = models.Order
@@ -251,7 +254,7 @@ class RiderHistorySerializer(serializers.ModelSerializer):
 
         def get_new_rider():   
             pharmacy=instance.order.pharmacy
-            rider = get_rider((pharmacy.location_lat, pharmacy.location_long))
+            rider = get_rider((pharmacy.location_lat, pharmacy.location_long), order=instance.order)
             rider_history_object = models.RiderHistory.objects.create(order=instance.order, rider=rider)
 
             send_order_rider_notifications(rider, instance.order, rider_history_object.id)

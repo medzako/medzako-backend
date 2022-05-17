@@ -41,17 +41,22 @@ def generate_random_string(length):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k = length))
 
 @app.task()
-def get_rider(destination):
+def get_rider(destination, order=None):
     from authentication.models import CurrentRiderLocation, User
+    from order.models import RiderHistory
 
     maximum_radius = settings.MAXIMUM_RADIUS
     rider_locations = CurrentRiderLocation.objects.all()
     riders_distances = [(rider_location.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
     riders_distances.sort(key=lambda x: x[1])
-    if riders_distances:
-        if riders_distances[0][1] < maximum_radius:
-            return riders_distances[0][0]
-            
+    for riders_distance in riders_distances:
+        has_already_rejected = False
+        if order:
+            has_already_rejected = RiderHistory.objects.filter(order=order, rider=riders_distance[0]).exists()
+
+        if riders_distance[1] < maximum_radius and not has_already_rejected:
+            return riders_distance[0]
+
     return User.objects.filter(user_type=RIDER, pk=19).first()
 
 
@@ -116,15 +121,27 @@ def get_pharmacy_users(pharmacy):
     user_profiles = pharmacy.user_profiles.all()
     return [profile.user for profile in user_profiles]
 
-def send_order_pharmacy_notifications(order, title = 'Rider found'):
+def send_order_pharmacy_notifications(order, title = 'Rider found', message=None):
     from order.serializers import FCMOrderSerializer
 
-    message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.id}'
+    if not message: 
+        message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.id}'
     order_serializer = FCMOrderSerializer(instance=order)
     users = get_pharmacy_users(order.pharmacy)
 
     sendFCMNotification.delay(users, title, message)
     sendFCMMessage.delay(users, order_serializer.data)
+
+
+def send_order_customer_notifications(order, title = 'Rider found', message=None):
+    from order.serializers import FCMOrderSerializer
+
+    if not message: 
+        message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.id}'
+    order_serializer = FCMOrderSerializer(instance=order)
+
+    sendFCMNotification.delay([order.customer], title, message)
+    sendFCMMessage.delay([order.customer], order_serializer.data)
 
 
 def send_order_rider_notifications(user, order, history_id):
