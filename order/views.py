@@ -29,6 +29,10 @@ class CreateListOrdersView(generics.ListCreateAPIView):
             if not pharmacy:
                 raise_validation_error({'detail': 'This user has no pharmacy attached'})
             return pharmacy.orders.all()
+
+        if self.request.user.user_type == RIDER:
+            return self.request.user.rider_orders.all()
+
         return self.request.user.orders.all()
 
     def get_serializer(self, *args, **kwargs):
@@ -62,6 +66,10 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
             if not pharmacy:
                 raise_validation_error({'detail': 'This user has no pharmacy attached'})
             return pharmacy.orders.all()
+        
+        if self.request.user.user_type == RIDER:
+            return self.request.user.rider_orders.all()
+            
         return self.request.user.orders.all()
 
     def retrieve(self, request, *args, **kwargs):
@@ -155,13 +163,13 @@ class FetchRiderHistory(generics.ListCreateAPIView):
         queryset = super().get_queryset()
         queryset = self.request.user.riders_history.all()
         if filter_query == 'pending':
-            queryset.filter(is_accepted=None)
+            queryset = queryset.filter(is_accepted=None)
 
         elif filter_query == 'accepted':
-            queryset.filter(is_accepted=True)
+            queryset = queryset.filter(is_accepted=True)
 
         elif filter_query == 'rejected':
-            queryset.filter(is_accepted=False)
+            queryset = queryset.filter(is_accepted=False)
         
         return queryset
 

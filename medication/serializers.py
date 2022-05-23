@@ -78,7 +78,7 @@ class MinimizedPharmacySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Pharmacy
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'location_lat', 'location_long']
 
 
 class GetStockSerializer(serializers.ModelSerializer):

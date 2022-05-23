@@ -46,15 +46,16 @@ def get_rider(destination, order=None):
     from order.models import RiderHistory
 
     maximum_radius = settings.MAXIMUM_RADIUS
-    rider_locations = CurrentRiderLocation.objects.all()
+    rider_locations = CurrentRiderLocation.objects.filter(rider__rider_profile__is_online=True)
     riders_distances = [(rider_location.rider, get_coordinate_distance((rider_location.lat, rider_location.long), destination)) for rider_location in rider_locations]
     riders_distances.sort(key=lambda x: x[1])
     for riders_distance in riders_distances:
         has_already_rejected = False
         if order:
-            has_already_rejected = RiderHistory.objects.filter(order=order, rider=riders_distance[0]).exists()
-
-        if riders_distance[1] < maximum_radius and not has_already_rejected:
+            has_already_rejected = RiderHistory.objects.filter(rider=riders_distance[0], is_accepted=None).exists()
+        
+        has_pending = RiderHistory.objects.filter(order=order, rider=riders_distance[0]).exists()
+        if riders_distance[1] < maximum_radius and not has_already_rejected and not has_pending:
             return riders_distance[0]
 
     return User.objects.filter(user_type=RIDER, pk=19).first()
@@ -144,11 +145,12 @@ def send_order_customer_notifications(order, title = 'Rider found', message=None
     sendFCMMessage.delay([order.customer], order_serializer.data)
 
 
-def send_order_rider_notifications(user, order, history_id):
+def send_order_rider_notifications(user, order, history_id, title='New Order', message=None):
     from order.serializers import FCMOrderSerializer
 
-    message = f'You have been assigned to deliver order no. {order.id} from {order.pharmacy.name} pharmacy'
-    title = 'New Order'
+    if not message:
+        message = f'You have been assigned to deliver order no. {order.id} from {order.pharmacy.name} pharmacy'
+    
     order_serializer = FCMOrderSerializer(instance=order)
     data = order_serializer.data
     data['rider_response_id'] = history_id

@@ -140,6 +140,9 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
                 pharmacy_earning=instance.total_price, rider_earning=50)
             except IntegrityError:
                 raise_validation_error({'detail': 'Order completed already'})
+
+            instance.rider.rider_profile.is_online = True
+            instance.rider.rider_profile.save()
             instance.pharmacy.completed_orders += 1
             instance.pharmacy.save()
             for item in instance.items.all():
@@ -163,9 +166,10 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
         if instance.status == DISPATCHED:
             if not instance.rider:
                 raise_validation_error({'detail': 'You cannot dispatch order without rider'})
-            send_order_customer_notifications(instance, title='Order Dispatched', message='Your order has been dispatched from the pharmacy') 
+            send_order_customer_notifications(instance, title='Order Dispatched', message='Your order has been dispatched from the pharmacy')
+            send_order_rider_notifications(instance.rider, instance, rider_history_object.id, title='Order Dispatched', message=f'Order {instance.id} has been dispatched') 
 
-        return instance
+        return instance  
     
     class Meta:
         model = models.Order
@@ -262,6 +266,8 @@ class RiderHistorySerializer(serializers.ModelSerializer):
         if instance.is_accepted==True:
             instance.order.rider=instance.rider
             instance.order.save()
+            instance.rider.rider_profile.is_online =  False
+            instance.rider.rider_profile.save()
             send_order_pharmacy_notifications(instance.order)
             
         elif instance.is_accepted==False:
@@ -271,7 +277,7 @@ class RiderHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.RiderHistory
-        fields = ['is_accepted', 'order']
+        fields = ['is_accepted']
 
 
 class RetrieveRiderHistorySerializer(serializers.ModelSerializer):
