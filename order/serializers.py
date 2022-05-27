@@ -209,6 +209,10 @@ class PaymentSerializer(serializers.ModelSerializer):
             users.append(order.customer)
             users += get_pharmacy_users(order.pharmacy)
             sendFCMNotification.delay(users, 'Payment Complete', f'A payment of {instance.amount} has been received')
+            serializer = FCMOrderSerializer(instance=order)
+            data = serializer.data
+            data['tracking_id'] = order.tracking_object.tracking_id
+            sendFCMMessage.delay(users, data)
 
         return instance
 
