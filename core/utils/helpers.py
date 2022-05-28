@@ -69,7 +69,7 @@ def sendFCMMessage(users, data):
     for user in users: 
         devices = FCMDevice.objects.filter(user=user)
         messageObj = Message(
-            data=payload
+            data={'payload': payload}
         )
         logInfo(devices.send_message(messageObj))
 
