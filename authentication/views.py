@@ -1,9 +1,6 @@
 from django.conf import settings
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
-from django.contrib import messages
-from django.utils.encoding import force_text
-from django.utils.http import urlsafe_base64_decode
 from jwt import DecodeError, decode
 
 

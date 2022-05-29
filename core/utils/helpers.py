@@ -62,14 +62,15 @@ def get_rider(destination, order=None):
 
 
 @app.task()
-def sendFCMMessage(users, data): 
+def sendFCMMessage(users, data, title, body, image_url=""): 
     """Send FCM data"""  
     payload = json.dumps(data)
 
     for user in users: 
         devices = FCMDevice.objects.filter(user=user)
         messageObj = Message(
-            data={'payload': payload}
+            data={'payload': payload},
+            notification=Notification(title=title, body=body, image=image_url)
         )
         logInfo(devices.send_message(messageObj))
 
@@ -130,8 +131,7 @@ def send_order_pharmacy_notifications(order, title = 'Rider found', message=None
     order_serializer = FCMOrderSerializer(instance=order)
     users = get_pharmacy_users(order.pharmacy)
 
-    sendFCMNotification.delay(users, title, message)
-    sendFCMMessage.delay(users, order_serializer.data)
+    sendFCMMessage.delay(users, order_serializer.data, title, message)
 
 
 def send_order_customer_notifications(order, title = 'Rider found', message=None):
@@ -141,8 +141,7 @@ def send_order_customer_notifications(order, title = 'Rider found', message=None
         message = f'The rider {order.rider.first_name} {order.rider.second_name} found for order no. {order.id}'
     order_serializer = FCMOrderSerializer(instance=order)
 
-    sendFCMNotification.delay([order.customer], title, message)
-    sendFCMMessage.delay([order.customer], order_serializer.data)
+    sendFCMMessage.delay([order.customer], order_serializer.data, title, message)
 
 
 def send_order_rider_notifications(user, order, history_id, title='New Order', message=None):
@@ -155,5 +154,4 @@ def send_order_rider_notifications(user, order, history_id, title='New Order', m
     data = order_serializer.data
     data['rider_response_id'] = history_id
 
-    sendFCMNotification.delay([user], title, message)
-    sendFCMMessage.delay([user], data)
+    sendFCMMessage.delay([user], data, title, message)

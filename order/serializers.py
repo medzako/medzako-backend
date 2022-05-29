@@ -9,7 +9,7 @@ from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
 from core.utils.helpers import (generate_random_string, get_pharmacy_users, get_rider, raise_validation_error,
  send_order_customer_notifications, send_order_pharmacy_notifications, send_order_rider_notifications, 
- sendFCMMessage, sendFCMNotification)
+ sendFCMMessage)
 
 
 class ItemsSerializer(serializers.ModelSerializer):
@@ -80,8 +80,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
-        serializer = RetrieveOrderSerializer(instance=instance)
-        sendFCMMessage.delay([instance.customer], serializer.data)
+        serializer = FCMOrderSerializer(instance=instance)
+        sendFCMMessage.delay([instance.customer], serializer.data, 'Order Updated', 'The order has been updated')
         return instance
     
     class Meta:
@@ -208,11 +208,12 @@ class PaymentSerializer(serializers.ModelSerializer):
             users = []
             users.append(order.customer)
             users += get_pharmacy_users(order.pharmacy)
-            sendFCMNotification.delay(users, 'Payment Complete', f'A payment of {instance.amount} has been received')
+            notification_message = f'A payment of {instance.amount} has been received'
+            title = 'Payment Complete'
             serializer = FCMOrderSerializer(instance=order)
             data = serializer.data
             data['tracking_id'] = order.tracking_object.tracking_id
-            sendFCMMessage.delay(users, data)
+            sendFCMMessage.delay(users, data, title, notification_message)
 
         return instance
 
