@@ -21,6 +21,12 @@ logger = logging.getLogger(__name__)
 def logInfo(data):
     logger.info(data)
 
+def format_fcm_data(data):
+    newData = {}
+    for key in data:
+        newData[str(key)] = str(data[key])
+    return newData
+
 def raise_validation_error(message=None):
     raise ValidationError(message)
 
@@ -64,12 +70,12 @@ def get_rider(destination, order=None):
 @app.task()
 def sendFCMMessage(users, data, title, body, image_url=""): 
     """Send FCM data"""  
-    payload = json.dumps(data)
+    data = format_fcm_data(data)
 
     for user in users: 
         devices = FCMDevice.objects.filter(user=user)
         messageObj = Message(
-            data={'payload': payload},
+            data=data,
             notification=Notification(title=title, body=body, image=image_url)
         )
         logInfo(devices.send_message(messageObj))
