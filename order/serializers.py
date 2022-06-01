@@ -75,6 +75,7 @@ class OrderSerializer(serializers.ModelSerializer):
         }
         
         models.CurrentOrderLocation.objects.create(**tracking_info)
+        send_order_pharmacy_notifications(instance, 'New Order', f'New order from {instance.customer.first_name} {instance.customer.last_name}')
 
         return instance
 

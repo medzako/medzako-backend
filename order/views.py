@@ -24,19 +24,22 @@ class CreateListOrdersView(generics.ListCreateAPIView):
     filterset_fields = ('status', 'is_completed')
 
     def get_queryset(self):
+        queryset = QuerySet()
         if self.request.user.user_type == PHARMACIST:
             pharmacy = self.request.user.pharmacist_profile.pharmacy
             if not pharmacy:
                 raise_validation_error({'detail': 'This user has no pharmacy attached'})
-            return pharmacy.orders.all()
+            queryset = pharmacy.orders.all()
 
-        if self.request.user.user_type == RIDER:
-            return self.request.user.rider_orders.all()
+        elif self.request.user.user_type == RIDER:
+            queryset = self.request.user.rider_orders.all()
 
-        return self.request.user.orders.all()
+        else:
+            queryset = self.request.user.orders.all()
+        
+        return queryset.order_by('-id')
 
     def get_serializer(self, *args, **kwargs):
-
         serializer = super().get_serializer(*args, **kwargs)
         if self.request.method == 'GET':
             serializer = serializers.FetchOrderSerializer(*args, **kwargs)
