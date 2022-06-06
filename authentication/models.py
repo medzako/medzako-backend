@@ -9,17 +9,20 @@ from django.contrib.auth.models import (
 )
 
 from django.contrib.auth import password_validation
-
-from cloudinary.models import CloudinaryField
 from django.conf import settings
-
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
-from jwt import encode
+from django.core.mail import EmailMultiAlternatives
+from django.dispatch import receiver
+from django.template.loader import render_to_string
 
 from rest_framework.exceptions import ValidationError
+
+from cloudinary.models import CloudinaryField
+
 from core.utils.constants import CUSTOMER, PHARMACIST, PHARMACY_LICENSES, RIDER, RIDER_LICENSES, USER_TYPES
+from core.utils.helpers import generate_random_string, generate_token
 from core.utils.validators import validate_phone_number, validate_required_arguments
 
 from core.models import AbstractBaseModel
@@ -246,6 +249,39 @@ class CurrentRiderLocation(AbstractBaseModel):
     long = models.DecimalField(max_digits=45, decimal_places=40, null=True)
 
 
+class ResetPasswordToken(models.Model):
+
+    @staticmethod
+    def generate_key():
+        """ generates a pseudo random 4 digit code"""
+        return generate_token(4)
+
+    user = models.ForeignKey(
+        User,
+        related_name='password_reset_tokens',
+        on_delete=models.CASCADE
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    # Key field, though it is not the primary key of the model
+    key = models.CharField(
+        max_length=10,
+        db_index=True,
+        unique=True
+    )
+   
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super(ResetPasswordToken, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return "Password reset token for user {user}".format(user=self.user)
+
+
 # @receiver(post_save, sender=User, dispatch_uid="create_user_varification_token")
 # def send_activation_email(sender, instance, **kwargs):
 #     if instance.is_superuser:
@@ -262,3 +298,39 @@ class CurrentRiderLocation(AbstractBaseModel):
 #     email_from = settings.COMPANY_EMAIL
 #     receipient_list = [instance.email]
 #     send_mail( subject, message, email_from, receipient_list )
+
+
+@receiver(post_save, sender=ResetPasswordToken, dispatch_uid="send-reset-email")
+def password_reset_token_created(sender, instance, *args, **kwargs):
+    """
+    Handles password reset tokens
+    When a token is created, an e-mail needs to be sent to the user
+    :param sender: View Class that sent the signal
+    :param instance: View Instance that sent the signal
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    # send an e-mail to the user
+    context = {
+        'current_user': instance.user,
+        'name': instance.user.full_name,
+        'email': instance.user.email,
+        'reset_password_code': instance.key
+    }
+
+    # render email text
+    email_html_message = render_to_string('authentication/reset_password_template.html', context)
+    email_plaintext_message = render_to_string('authentication/reset_password_template.txt', context)
+    msg = EmailMultiAlternatives(
+        # title:
+        f"Password Reset for Jambo SMS",
+        # message:
+        email_plaintext_message,
+        # from:
+        settings.COMPANY_EMAIL,
+        # to:
+        [instance.user.email]
+    )
+    msg.attach_alternative(email_html_message, "text/html")
+    msg.send()

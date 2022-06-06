@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404
@@ -180,3 +181,49 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only':True},
             }
+
+class PasswordResetSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+    def is_user_available(self):
+        email = self.validated_data.get("email")
+        users = models.User.objects.filter(email=email)
+        return users.exists()
+
+    def create(self, validated_data):
+        email = validated_data.pop("email")
+        user = get_object_or_404(models.User, email)
+        validated_data["user"] = user
+        instance = models.ResetPasswordToken(**validated_data)
+        instance.save()
+        return instance
+
+
+class UpdatePasswordSerializer(serializers.Serializer):
+
+    confirm_password = serializers.CharField(validators=[validate_password])
+    password = serializers.CharField(validators=[validate_password])
+    token = serializers.CharField()
+
+    def is_valid(self, raise_exception=True):
+        super().is_valid(raise_exception=raise_exception)
+        if not self.validated_data["confirm_password"] == self.initial_data["password"]:
+            raise_validation_error({"detail":"Passwords do not match"})
+        
+        token = self.validated_data["token"]
+        tokens = models.ResetPasswordToken.objects.filter(key=token)
+
+        if not tokens.exists():
+            raise_validation_error({"detail": "Invalid token"})
+
+        if datetime.now() - tokens[0].created_at.replace(tzinfo=None)  > timedelta(hours=24):
+            raise_validation_error({"detail": "Token expired"})
+
+    def update_password(self):
+        token = self.validated_data["token"]
+        tokenObject = models.ResetPasswordToken.objects.get(key=token)
+        user = tokenObject.user
+        user.set_password(self.validated_data["password"])
+        user.save()
+        tokenObject.delete()

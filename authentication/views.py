@@ -3,11 +3,10 @@ from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from jwt import DecodeError, decode
 
-
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
 
 from rest_framework_simplejwt.views import TokenViewBase
 
@@ -186,4 +185,28 @@ def verify_user(request, token):
     user.save()
 
     return render(request, 'authentication/activate-failed.html', {"user": user})
-    
+
+
+class SendPasswordResetEmail(APIView):
+
+    permission_classes = []
+    serializer_class = serializers.PasswordResetSerializer
+    queryset = models.ResetPasswordToken.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.PasswordResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.is_user_available():
+            serializer.save()
+        return Response({"detail": "Success, user reset code sent"})
+
+
+class ResetPassword(APIView):
+
+    permission_classes = []
+
+    def patch(self, request, *args, **kwargs):
+        serializer = serializers.UpdatePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.update_password()
+        return Response({"detail": "Success, password reset"})

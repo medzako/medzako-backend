@@ -14,7 +14,6 @@ urlpatterns = [
     path("rider-profile/", views.FetchUpdateRiderProfileView.as_view(), name="fetch_update_rider_profile"),
     path("pharmacy/upload-license/", views.UploadPharmacyLincenseView.as_view(), name="upload_pharmacy_license"),
     path("riders/upload-license/", views.UploadRiderLincenseView.as_view(), name="upload_rider_license"),
-    # path("rider/update-location/", views.upd.as_view(), name="upload_rider_license"),
     path("users/<int:pk>/", views.UpdateUser.as_view(), name="update_user"),
     path("users/update/", views.UpdateUserNoId.as_view(), name="update_user_no_id"),
     path("pharmacies/<int:pharmacy_id>/licenses/", views.FetchPharmacyLincensesView.as_view(), name="fetch_pharmacy_licenses"),
@@ -24,5 +23,6 @@ urlpatterns = [
     path("send-test-notification/", views.SendNotification.as_view(), name="send_fcm_notification"),
     path("send-fcm-test-data/", views.SendFCMData.as_view(), name="send_fcm_data"),
     path("update-rider-location/", views.CurrentRiderLocationView.as_view(), name="update_rider_location"),
-
+    path("reset-password/send-email/", views.SendPasswordResetEmail.as_view(), name="send_reset_email"),
+    path("reset-password/", views.ResetPassword.as_view(), name="reset_password"),
 ]

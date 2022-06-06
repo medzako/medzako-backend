@@ -15,6 +15,9 @@ import six
 from core.utils.constants import RIDER
 from medzako.celery import app
 
+import secrets
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +127,19 @@ def parseStockData(stockData):
 class TokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
         return (six.text_type(user.pk)+six.text_type(timestamp)+six.text_type(user.is_email_verified))
+
+
+def generate_token(length):
+    """Generate token
+    args:
+        lenght - integer
+    returns: string
+    """
+    first = random.choice(range(1, 10))
+    leftover = set(range(10)) - {first}
+    rest = random.sample(leftover, length-1)
+    digits = [first] + rest
+    return str(digits)
 
 def get_pharmacy_users(pharmacy):
     user_profiles = pharmacy.user_profiles.all()
