@@ -50,6 +50,7 @@ class Order(AbstractBaseModel):
         null=True
     )
     action_reason = models.TextField(null=True)
+    notes = models.TextField(null=True)
     rider = models.ForeignKey(
         'authentication.User',
         on_delete=models.SET_NULL,

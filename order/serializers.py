@@ -43,6 +43,13 @@ class FCMOrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MinimizedPaymentSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Payment
+        fields = ['charged_amount', 'event_id', 'payment_type']
+
+
 class FetchItemsSerializer(serializers.ModelSerializer):
     medication = MedicationSerializer()
     
@@ -167,6 +174,9 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
         if instance.status == DISPATCHED:
             if not instance.rider:
                 raise_validation_error({'detail': 'You cannot dispatch order without rider'})
+
+            rider_history_object = models.RiderHistory.objects.filter(order=instance.pk, rider=instance.rider.pk).latest()
+
             send_order_customer_notifications(instance, title='Order Dispatched', message='Your order has been dispatched from the pharmacy')
             send_order_rider_notifications(instance.rider, instance, rider_history_object.id, title='Order Dispatched', message=f'Order {instance.id} has been dispatched') 
 
@@ -230,6 +240,7 @@ class RetrieveOrderSerializer(serializers.ModelSerializer):
     pharmacy = MinimizedPharmacySerializer()
     customer = UserSerializer()
     rider = UserSerializer()
+    payment = MinimizedPaymentSerializer()
     
     class Meta:
         model = models.Order
