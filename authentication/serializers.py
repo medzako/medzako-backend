@@ -49,6 +49,14 @@ class ReturnUserInformationLoginSerializer(TokenObtainPairSerializer):
         token['is_admin'] = user.is_admin
         token['is_superuser'] = user.is_superuser
         return token
+        
+    
+class MinimizedUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.User
+        fields = ['first_name', 'last_name']
+
 
 class PharmacyLicenseSerializer(serializers.ModelSerializer):
 

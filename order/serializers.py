@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db.utils import IntegrityError
 from authentication.models import User
-from authentication.serializers import UserSerializer
+from authentication.serializers import MinimizedUserSerializer, UserSerializer
 
 from core.utils.constants import ACCEPTED, DELIVERED, DISPATCHED, RIDER
 
@@ -108,7 +108,8 @@ class FetchOrderSerializer(serializers.ModelSerializer):
 
     pharmacy = MinimizedPharmacySerializer()
     prescription = ImageUploadSerializer()
-
+    customer = MinimizedUserSerializer()
+    location = LocationSerializer()
     
     class Meta:
         model = models.Order
