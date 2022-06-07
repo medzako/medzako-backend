@@ -6,8 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-
 
 from core.permissions import IsCustomer, IsRider, IsRiderOwnerObject
 from core.utils.constants import DELIVERED, PHARMACIST, RIDER

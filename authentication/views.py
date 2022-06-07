@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from rest_framework_simplejwt.views import TokenViewBase
 
-from core.permissions import IsAdminOrReadOnly, IsCurrentUser, IsCustomer, IsRider
+from core.permissions import IsAdminOrReadOnly, IsCurrentUser, IsCustomer, IsPharmacist, IsRider
 from medication.models import Pharmacy
 from core.utils.helpers import sendFCMMessage, sendFCMNotification
 
@@ -71,14 +71,14 @@ class FetchUpdateRiderProfileView(generics.GenericAPIView):
 
 class UploadPharmacyLincenseView(generics.CreateAPIView):
     """Upload Pharmacy License"""
-    permission_classes = []
+    permission_classes = [IsPharmacist]
     queryset = models.PharmacyLicense.objects.all()
     serializer_class = serializers.PharmacyLicenseSerializer
 
 
 class FetchPharmacyLincensesView(generics.GenericAPIView):
     """Upload Pharmacy License"""
-    permission_classes = []
+    permission_classes = [IsPharmacist]
     queryset = models.PharmacyLicense.objects.all()
     serializer_class = serializers.PharmacyLicenseSerializer
 

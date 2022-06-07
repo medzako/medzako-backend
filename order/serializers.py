@@ -16,7 +16,7 @@ class ItemsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.OrderItem
-        fields = '__all__'
+        fields = ['quantity', 'price', 'medication']
         extra_kwargs = {
             'order': {'read_only':True},
         }
@@ -110,6 +110,7 @@ class FetchOrderSerializer(serializers.ModelSerializer):
     prescription = ImageUploadSerializer()
     customer = MinimizedUserSerializer()
     location = LocationSerializer()
+    items = ItemsSerializer(many=True)
     
     class Meta:
         model = models.Order
@@ -125,7 +126,17 @@ class SocketOrderSerializer(serializers.ModelSerializer):
 
 class MinimizedOrderSerializer(serializers.ModelSerializer):
 
-    customer = UserSerializer()
+    customer = MinimizedUserSerializer()
+    items = ItemsSerializer(source='items', many=True)
+    
+    class Meta:
+        model = models.Order
+        fields = ['id', 'customer', 'total_price', 'status']
+
+
+class MinimizedEarningOrderSerializer(serializers.ModelSerializer):
+
+    items = ItemsSerializer(source='items', many=True)
     
     class Meta:
         model = models.Order
@@ -250,7 +261,7 @@ class RetrieveOrderSerializer(serializers.ModelSerializer):
 
 class RiderEarningsSerializer(serializers.ModelSerializer):
 
-    order = FetchOrderSerializer()
+    order = MinimizedOrderSerializer()
 
     class Meta:
         model = models.OrderEarning

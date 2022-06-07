@@ -55,16 +55,18 @@ class MinimizedUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'second_name']
 
 
 class PharmacyLicenseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         name = validated_data.get('name')
-        licenses = models.PharmacyLicense.objects.filter(name=name)
+        pharmacy = self.context['request'].user.pharmacist_profile.pharmacy
+        licenses = models.PharmacyLicense.objects.filter(name=name, pharmacy=pharmacy)
         for license in licenses:
             license.delete()
+        validated_data['pharmacy'] = pharmacy
         return super().create(validated_data)
         
     class Meta:
@@ -76,11 +78,12 @@ class RiderLicenseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         name = validated_data.get('name')
-        licenses = models.RiderLicense.objects.filter(name=name)
+        rider_profile = self.context['request'].user.rider_profile
+        licenses = models.RiderLicense.objects.filter(name=name, rider_profile=rider_profile)
         for license in licenses:
             license.delete()
 
-        validated_data['rider_profile'] = self.context['request'].user.rider_profile
+        validated_data['rider_profile'] = rider_profile
         return super().create(validated_data)
 
     class Meta:

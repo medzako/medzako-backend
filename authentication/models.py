@@ -266,7 +266,6 @@ class ResetPasswordToken(models.Model):
         auto_now_add=True
     )
 
-    # Key field, though it is not the primary key of the model
     key = models.CharField(
         max_length=10,
         db_index=True,
