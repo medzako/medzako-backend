@@ -131,7 +131,7 @@ class MinimizedOrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Order
-        fields = ['id', 'customer', 'total_price', 'status']
+        fields = ['id', 'customer', 'total_price', 'status', 'items']
 
 
 class MinimizedEarningOrderSerializer(serializers.ModelSerializer):
