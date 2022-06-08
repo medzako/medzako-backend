@@ -127,7 +127,7 @@ class SocketOrderSerializer(serializers.ModelSerializer):
 class MinimizedOrderSerializer(serializers.ModelSerializer):
 
     customer = MinimizedUserSerializer()
-    items = ItemsSerializer(source='items', many=True)
+    items = ItemsSerializer(many=True)
     
     class Meta:
         model = models.Order
