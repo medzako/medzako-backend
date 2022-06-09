@@ -77,12 +77,21 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
         instance = self.get_object()
         serializer = serializers.RetrieveOrderSerializer(instance)
         data = serializer.data
-        items_serializer = serializers.FetchItemsSerializer(instance.items.all(), many=True)
-        data['items'] =  items_serializer.data
-        data['tracking_id'] = instance.tracking_object.tracking_id
+        if (hasattr(instance, 'tracking_object')):
+                data['tracking_id'] = instance.tracking_object.tracking_id
         return Response(data=data)
 
-    
+
+class ReOrder(generics.UpdateAPIView):
+    """Retrieve and Update Order"""
+    permission_classes = [IsCustomer]
+    queryset = models.Order.objects.all()
+    serializer_class = serializers.UpdateOrderSerializer
+
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+
 class CreateListLocationsView(generics.ListCreateAPIView):
     """Creates and List Locations"""
     permission_classes = [IsAuthenticated]

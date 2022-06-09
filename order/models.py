@@ -19,7 +19,7 @@ class Order(AbstractBaseModel):
         on_delete=models.SET_NULL,
         related_name='order',
         null=True
-    ),
+    )
     pharmacy = models.ForeignKey(
         'medication.Pharmacy',
         on_delete=models.SET_NULL,

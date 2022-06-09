@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.db.utils import IntegrityError
-from authentication.models import User
 from authentication.serializers import MinimizedUserSerializer, UserSerializer
 
 from core.utils.constants import ACCEPTED, DELIVERED, DISPATCHED, RIDER
@@ -82,7 +81,7 @@ class OrderSerializer(serializers.ModelSerializer):
         }
         
         models.CurrentOrderLocation.objects.create(**tracking_info)
-        send_order_pharmacy_notifications(instance, 'New Order', f'New order from {instance.customer.first_name} {instance.customer.last_name}')
+        send_order_pharmacy_notifications(instance, 'New Order', f'New order from {instance.customer.first_name} {instance.customer.second_name}')
 
         return instance
 
@@ -136,11 +135,23 @@ class MinimizedOrderSerializer(serializers.ModelSerializer):
 
 class MinimizedEarningOrderSerializer(serializers.ModelSerializer):
 
-    items = ItemsSerializer(source='items', many=True)
+    items = ItemsSerializer(many=True)
     
     class Meta:
         model = models.Order
         fields = ['id', 'customer', 'total_price', 'status']
+
+
+class ReOrderSerializer(serializers.ModelSerializer):
+    order = serializers.IntegerField(required=True)
+
+    def is_valid(self, raise_exception=False):
+        
+        return super().is_valid(raise_exception)
+
+    class Meta:
+        model = models.Order
+        fields = '__all__'
 
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
@@ -216,7 +227,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
            self.initial_data = data
 
-        raise_exception=False
+        raise_exception=True
 
         return super().is_valid(raise_exception=raise_exception)
 
@@ -235,7 +246,8 @@ class PaymentSerializer(serializers.ModelSerializer):
             title = 'Payment Complete'
             serializer = FCMOrderSerializer(instance=order)
             data = serializer.data
-            data['tracking_id'] = order.tracking_object.tracking_id
+            if (hasattr(order, 'tracking_object')):
+                data['tracking_id'] = order.tracking_object.tracking_id
             sendFCMMessage.delay(users, data, title, notification_message)
 
         return instance
@@ -253,6 +265,7 @@ class RetrieveOrderSerializer(serializers.ModelSerializer):
     customer = UserSerializer()
     rider = UserSerializer()
     payment = MinimizedPaymentSerializer()
+    items = FetchItemsSerializer(many=True)
     
     class Meta:
         model = models.Order
