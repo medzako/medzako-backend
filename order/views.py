@@ -82,14 +82,14 @@ class RetrieveUpdateOrder(generics.RetrieveUpdateAPIView):
         return Response(data=data)
 
 
-class ReOrder(generics.UpdateAPIView):
+class ReOrderView(generics.CreateAPIView):
     """Retrieve and Update Order"""
     permission_classes = [IsCustomer]
     queryset = models.Order.objects.all()
-    serializer_class = serializers.UpdateOrderSerializer
+    serializer_class = serializers.ReOrderSerializer
 
-    def put(self, request, *args, **kwargs):
-        return super().put(request, *args, **kwargs)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
 
 class CreateListLocationsView(generics.ListCreateAPIView):

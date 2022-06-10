@@ -16,6 +16,7 @@ urlpatterns = [
     path("rider-history/", views.FetchRiderHistory.as_view(), name="fech_rider_history"),
     path("payment-message/", views.payment_message, name="payment_message"),
     path("<int:pk>/rate-rider/", views.RateRiderView.as_view(), name="rate-rider"),
-    path("<int:pk>/rate-pharmacy/", views.RatePharmacyView.as_view(), name="rate-pharmacy")
+    path("<int:pk>/rate-pharmacy/", views.RatePharmacyView.as_view(), name="rate-pharmacy"),
+    path("reorder/", views.ReOrderView.as_view(), name="reorder"),
 
 ]

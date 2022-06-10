@@ -1,8 +1,13 @@
+from decimal import Decimal
+from email import message
+from pyexpat import model
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from django.db.utils import IntegrityError
 from authentication.serializers import MinimizedUserSerializer, UserSerializer
 
 from core.utils.constants import ACCEPTED, DELIVERED, DISPATCHED, RIDER
+from medication.models import PharmacyStock
 
 from . import models
 from medication.serializers import MedicationSerializer, MinimizedPharmacySerializer
@@ -145,13 +150,56 @@ class MinimizedEarningOrderSerializer(serializers.ModelSerializer):
 class ReOrderSerializer(serializers.ModelSerializer):
     order = serializers.IntegerField(required=True)
 
-    def is_valid(self, raise_exception=False):
+    def create(self, validated_data):
+        self.fields.pop('order')
+        order_id = validated_data.pop('order')
+        order = get_object_or_404(models.Order, pk=order_id)
+        if order.customer != self.context['request'].user:
+            raise_validation_error({'detail': 'You cannot access this order'})
+
+        validated_data['total_price'] = order.total_price
+        validated_data['customer'] = self.context['request'].user
+        validated_data['delivery_fee'] = order.delivery_fee
+        validated_data['pharmacy'] = order.pharmacy
+        validated_data['location'] = order.location
+
+        instance = models.Order._default_manager.create(**validated_data)
+
+        new_price = Decimal(0.0)
+        not_in_stock = ""
+
+        for itemInstance in order.items.all():
+            stock_item = PharmacyStock.objects.get(pharmacy=order.pharmacy, medication=itemInstance.medication, in_stock=True)
+            if not stock_item:
+                not_in_stock += f'{itemInstance.medication.name}, '
+                continue
+            item_price = stock_item.price * itemInstance.quantity
+            new_price += item_price
+            
+            item = {}
+            item['quantity'] = itemInstance.quantity
+            item['order'] = instance
+            item['medication'] = itemInstance.medication
+            item['price'] = item_price
+            models.OrderItem._default_manager.create(**item)
         
-        return super().is_valid(raise_exception)
+        if not_in_stock:
+            message = not_in_stock + ' medication are not in stock.'
+            instance.delete()
+            raise_validation_error({'detail': message})
+
+        instance.total_price = new_price
+        instance.save()    
+        return instance
 
     class Meta:
         model = models.Order
-        fields = '__all__'
+        fields = ['id', 'pharmacy', 'total_price', 'order']
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'pharmacy': {'read_only': True},
+            'total_price': {'read_only': True},
+        }
 
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
