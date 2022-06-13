@@ -283,22 +283,22 @@ class ResetPasswordToken(models.Model):
         return "Password reset token for user {user}".format(user=self.user)
 
 
-@receiver(post_save, sender=User, dispatch_uid="create_user_varification_token")
-def send_activation_email(sender, instance, **kwargs):
-    if instance.is_superuser:
-        return
+# @receiver(post_save, sender=User, dispatch_uid="create_user_varification_token")
+# def send_activation_email(sender, instance, **kwargs):
+#     if instance.is_superuser:
+#         return
 
-    subject = "Medzako email verification link"
-    payload = { 
-            "email": instance.email,
-            "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-             }
-    token = encode(payload, settings.SECRET_KEY)
-    print(token)
-    message = settings.FRONTEND_LINK + '/verify/' + token
-    email_from = settings.COMPANY_EMAIL
-    receipient_list = [instance.email]
-    send_mail( subject, message, email_from, receipient_list )
+#     subject = "Medzako email verification link"
+#     payload = { 
+#             "email": instance.email,
+#             "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+#              }
+#     token = encode(payload, settings.SECRET_KEY)
+#     print(token)
+#     message = settings.FRONTEND_LINK + '/verify/' + token
+#     email_from = settings.COMPANY_EMAIL
+#     receipient_list = [instance.email]
+#     send_mail( subject, message, email_from, receipient_list )
 
 
 @receiver(post_save, sender=ResetPasswordToken, dispatch_uid="send-reset-email")
