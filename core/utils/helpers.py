@@ -139,7 +139,10 @@ def generate_token(length):
     leftover = set(range(10)) - {first}
     rest = random.sample(leftover, length-1)
     digits = [first] + rest
-    return str(digits)
+    numberString = ""
+    for number in digits:
+        numberString += str(number)
+    return numberString
 
 def get_pharmacy_users(pharmacy):
     user_profiles = pharmacy.user_profiles.all()

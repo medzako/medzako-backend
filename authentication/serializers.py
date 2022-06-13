@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from django.conf import settings
-from django.forms import ValidationError
+from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from jwt import decode, DecodeError
@@ -204,7 +204,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         email = validated_data.pop("email")
-        user = get_object_or_404(models.User, email)
+        user = get_object_or_404(models.User, email=email)
         validated_data["user"] = user
         instance = models.ResetPasswordToken(**validated_data)
         instance.save()

@@ -1,6 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
 
+from jwt import encode
+
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -281,22 +283,22 @@ class ResetPasswordToken(models.Model):
         return "Password reset token for user {user}".format(user=self.user)
 
 
-# @receiver(post_save, sender=User, dispatch_uid="create_user_varification_token")
-# def send_activation_email(sender, instance, **kwargs):
-#     if instance.is_superuser:
-#         return
+@receiver(post_save, sender=User, dispatch_uid="create_user_varification_token")
+def send_activation_email(sender, instance, **kwargs):
+    if instance.is_superuser:
+        return
 
-#     subject = "Medzako email verification link"
-#     payload = { 
-#             "email": instance.email,
-#             "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-#              }
-#     token = encode(payload, settings.SECRET_KEY)
-#     print(token)
-#     message = settings.FRONTEND_LINK + 'verify/' + token
-#     email_from = settings.COMPANY_EMAIL
-#     receipient_list = [instance.email]
-#     send_mail( subject, message, email_from, receipient_list )
+    subject = "Medzako email verification link"
+    payload = { 
+            "email": instance.email,
+            "date": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+             }
+    token = encode(payload, settings.SECRET_KEY)
+    print(token)
+    message = settings.FRONTEND_LINK + '/verify/' + token
+    email_from = settings.COMPANY_EMAIL
+    receipient_list = [instance.email]
+    send_mail( subject, message, email_from, receipient_list )
 
 
 @receiver(post_save, sender=ResetPasswordToken, dispatch_uid="send-reset-email")
@@ -313,7 +315,7 @@ def password_reset_token_created(sender, instance, *args, **kwargs):
     # send an e-mail to the user
     context = {
         'current_user': instance.user,
-        'name': instance.user.full_name,
+        'name': instance.user.first_name,
         'email': instance.user.email,
         'reset_password_code': instance.key
     }
@@ -321,15 +323,5 @@ def password_reset_token_created(sender, instance, *args, **kwargs):
     # render email text
     email_html_message = render_to_string('authentication/reset_password_template.html', context)
     email_plaintext_message = render_to_string('authentication/reset_password_template.txt', context)
-    msg = EmailMultiAlternatives(
-        # title:
-        f"Password Reset for Jambo SMS",
-        # message:
-        email_plaintext_message,
-        # from:
-        settings.COMPANY_EMAIL,
-        # to:
-        [instance.user.email]
-    )
-    msg.attach_alternative(email_html_message, "text/html")
-    msg.send()
+    subject = "Medzako Password Reset"
+    send_mail(subject, email_plaintext_message, settings.COMPANY_EMAIL, [instance.user.email], html_message=email_html_message)
